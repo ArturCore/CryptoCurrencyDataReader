@@ -1,12 +1,15 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Binance.Net.Clients;
+using Microsoft.Extensions.Hosting;
 using Shared;
+using Azure;
+using Microsoft.Extensions.Configuration;
 
 namespace BinanceWebSocketReader
 {
     public class BinanceWorker : BackgroundService
     {
         private readonly BinanceSocketClient _socketClient;
-        private readonly AzureStorage.AzureDbService _azureDbService;
+        private readonly AzureDbService _azureDbService;
         private readonly OrderBookAggregator _aggregator;
         private readonly Dictionary<string, List<(DateTime Timestamp, List<(decimal Price, decimal Quantity)> Bids, List<(decimal Price, decimal Quantity)> Asks)>> _minuteData;
         private readonly object _lock = new object();
@@ -24,7 +27,7 @@ namespace BinanceWebSocketReader
             }
 
             // Ініціалізація AzureDbService
-            _azureDbService = new AzureStorage.AzureDbService(connectionString);
+            _azureDbService = new AzureDbService(connectionString);
 
             // Ініціалізація OrderBookAggregator
             _aggregator = new Shared.OrderBookAggregator();

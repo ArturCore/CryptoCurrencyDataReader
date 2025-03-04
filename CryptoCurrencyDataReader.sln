@@ -5,7 +5,9 @@ VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceWebSocketReader", "src\BinanceWebSocketReader\BinanceWebSocketReader.csproj", "{EF09419E-0515-45BB-9422-A1CCCDA289C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{07FE0893-8085-4F3E-953E-D588886D884B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "src\Shared\Shared.csproj", "{07FE0893-8085-4F3E-953E-D588886D884B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure", "src\Azure\Azure.csproj", "{5D4A60ED-2E17-455B-B277-758B32B6021F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{07FE0893-8085-4F3E-953E-D588886D884B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07FE0893-8085-4F3E-953E-D588886D884B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07FE0893-8085-4F3E-953E-D588886D884B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D4A60ED-2E17-455B-B277-758B32B6021F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D4A60ED-2E17-455B-B277-758B32B6021F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D4A60ED-2E17-455B-B277-758B32B6021F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D4A60ED-2E17-455B-B277-758B32B6021F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
