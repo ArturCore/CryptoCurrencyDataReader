@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoCurrencyDataReader", "CryptoCurrencyDataReader\CryptoCurrencyDataReader.csproj", "{2B4FF45D-8C19-465F-A30B-734F5D1EAE9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceWebSocketReader", "src\BinanceWebSocketReader\BinanceWebSocketReader.csproj", "{EF09419E-0515-45BB-9422-A1CCCDA289C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{07FE0893-8085-4F3E-953E-D588886D884B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2B4FF45D-8C19-465F-A30B-734F5D1EAE9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B4FF45D-8C19-465F-A30B-734F5D1EAE9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B4FF45D-8C19-465F-A30B-734F5D1EAE9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B4FF45D-8C19-465F-A30B-734F5D1EAE9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF09419E-0515-45BB-9422-A1CCCDA289C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF09419E-0515-45BB-9422-A1CCCDA289C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF09419E-0515-45BB-9422-A1CCCDA289C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF09419E-0515-45BB-9422-A1CCCDA289C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07FE0893-8085-4F3E-953E-D588886D884B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07FE0893-8085-4F3E-953E-D588886D884B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07FE0893-8085-4F3E-953E-D588886D884B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07FE0893-8085-4F3E-953E-D588886D884B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
