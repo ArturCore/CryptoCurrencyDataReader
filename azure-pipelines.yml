@@ -58,7 +58,7 @@ stages:
     - task: AzureWebApp@1
       displayName: 'Deploy to Azure App Service'
       inputs:
-        azureSubscription: '<Your-Service-Connection-Name>' # Наприклад, 'AzureSubscriptionConnection'
+        azureSubscription: '<Your-Service-Connection-Name>' # Заміни на ім'я твого підключення, наприклад, 'AzureSubscriptionConnection'
         appType: 'webApp'
         appName: 'CryptoCurrencyDataReaderWindows-cbc4f5cnarhn9'
         package: '$(Pipeline.Workspace)/drop/*.zip'
