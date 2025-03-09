@@ -1,10 +1,14 @@
-﻿using Microsoft.Azure.Cosmos.Table;
+﻿using Azure.Data.Tables;
 using Shared;
 
 namespace Azure
 {
-    public class AggregatedOrderBookEntity : TableEntity
+    public class AggregatedOrderBookEntity : ITableEntity
     {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+        public ETag ETag { get; set; }
         public string Symbol { get; set; }
         public string Date { get; set; }
         public double AskVolume { get; set; }
