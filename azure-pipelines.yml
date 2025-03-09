@@ -1,12 +1,12 @@
 trigger:
-- master
+- main
 
 pool:
   name: Default
 
 variables:
   buildConfiguration: 'Release'
-  projectPath: 'src/BinanceWebSocketReader/BinanceWebSocketReader.csproj' # Шлях до твого .csproj
+  projectPath: 'src/BinanceWebSocketReader/BinanceWebSocketReader.csproj'
 
 steps:
 - task: UseDotNet@2
