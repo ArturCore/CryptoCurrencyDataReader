@@ -1,0 +1,65 @@
+trigger:
+- master
+
+stages:
+- stage: Build
+  displayName: 'Build stage'
+  jobs:
+  - job: BuildJob
+    pool:
+      name: Default
+    variables:
+      buildConfiguration: 'Release'
+      projectPath: 'src/BinanceWebSocketReader/BinanceWebSocketReader.csproj'
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore dependencies'
+      inputs:
+        command: 'restore'
+        projects: '$(projectPath)'
+        feedsToUse: 'select'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build project'
+      inputs:
+        command: 'build'
+        projects: '$(projectPath)'
+        arguments: '--configuration $(buildConfiguration) --no-restore'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish project'
+      inputs:
+        command: 'publish'
+        projects: '$(projectPath)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --no-build'
+        publishWebProjects: false
+        zipAfterPublish: true
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish artifacts'
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'drop'
+
+- stage: Deploy
+  displayName: 'Deploy stage'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: DeployJob
+    pool:
+      name: Default
+    steps:
+    - task: AzureWebApp@1
+      displayName: 'Deploy to Azure App Service'
+      inputs:
+        azureSubscription: 'AzureSubscriptionConnection'
+        appType: 'webApp'
+        appName: 'CryptoCurrencyDataReaderWindows-cbc4f5cnarhn9'
+        package: '$(Pipeline.Workspace)/drop/*.zip'
+        startUpCommand: 'dotnet BinanceWebSocketReader.dll'
