@@ -35,7 +35,7 @@ namespace BinanceWebSocketReader
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            int? updateInterval = 1000; // Оновлення раз на секунду
+            int? updateInterval = 100; // Оновлення раз на секунду
             var symbols = new[] { "ETHUSDT", "BTCUSDT" };
             var depthPercentages = new[] { 1, 2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100 };
 
