@@ -12,6 +12,8 @@ IConfiguration configuration = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
 
+string? port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
 var builder = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
@@ -21,7 +23,7 @@ var builder = Host.CreateDefaultBuilder(args)
         {
             return new WebHostBuilder()
                 .UseKestrel()
-                .UseUrls("http://localhost:8000")
+                .UseUrls($"http://0.0.0.0:{port}")
                 .Configure(app =>
                 {
                     app.Run(async context =>
