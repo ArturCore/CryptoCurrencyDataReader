@@ -21,7 +21,7 @@ var builder = Host.CreateDefaultBuilder(args)
         {
             return new WebHostBuilder()
                 .UseKestrel()
-                .UseUrls("http://localhost:8080")
+                .UseUrls("http://localhost:8000")
                 .Configure(app =>
                 {
                     app.Run(async context =>
