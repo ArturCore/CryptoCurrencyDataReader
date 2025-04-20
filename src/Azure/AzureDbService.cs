@@ -30,7 +30,6 @@ namespace Azure
             }
             catch (Exception ex)
             {
-                // У Azure.Data.Tables статус 409 (Conflict) також означає, що таблиця вже існує
                 if (ex.Message.Contains("TableAlreadyExists"))
                 {
                     Console.WriteLine($"Table '{tableName}' already exists, skipping creation.");
@@ -48,23 +47,22 @@ namespace Azure
 
         public async Task SaveAggregatedDataAsync(string symbol, string timestamp, List<AggregatedData> aggregatedData, CancellationToken cancellationToken)
         {
-            // Групуємо дані за глибиною
             var groupedData = aggregatedData.GroupBy(d => d.Depth);
 
             foreach (var group in groupedData)
             {
                 int depth = group.Key;
-                // Формуємо ім'я таблиці без недозволених символів
-                string tableName = $"{symbol}Depth{depth}";
+                string tableName = $"{symbol}Depth{depth}v2";
                 var tableClient = await GetOrCreateTableAsync(tableName);
 
+                // Оновлюємо або додаємо запис за день
                 foreach (var data in group)
                 {
                     var entity = new AggregatedOrderBookEntity(symbol, timestamp, data);
-                    await tableClient.AddEntityAsync(entity, cancellationToken);
+                    await tableClient.UpsertEntityAsync(entity, TableUpdateMode.Replace, cancellationToken); // Замінюємо існуючий запис
                 }
 
-                Console.WriteLine($"Saved aggregated minute data for {symbol} (Depth: {depth}%) to Table Storage: {tableName}");
+                Console.WriteLine($"Saved aggregated daily data for {symbol} (Depth: {depth}%) to Table Storage: {tableName}");
             }
         }
     }
