@@ -68,14 +68,13 @@ namespace BinanceWebSocketReader
 
                     GetOrderBookAsync(ExchangeSymbol, 5000);
 
-                    //wait till next minute
-                    var now = DateTime.Now;
-                    var secondsToWait = 60 - now.Second;
-                    await Task.Delay(secondsToWait * 1000);
-
                     while (!stoppingToken.IsCancellationRequested)
                     {
-                        await Task.Delay(60000);
+                        //wait till next minute
+                        var now = DateTime.Now;
+                        var secondsToWait = 60 - now.Second;
+                        await Task.Delay(secondsToWait * 1000);
+
                         var currentPrice = await GetCurrentPricesAsync(ExchangeSymbol, stoppingToken);
 
                         // Copy data for aggregation
