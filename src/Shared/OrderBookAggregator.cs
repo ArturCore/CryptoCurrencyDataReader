@@ -36,7 +36,6 @@
 
                 var result = new AggregatedData
                 {
-                    Date = DateTime.UtcNow.ToString("yyyy-MM-dd"), // Лише дата
                     Ask = askVolume,
                     Bid = bidVolume,
                     Price = price,

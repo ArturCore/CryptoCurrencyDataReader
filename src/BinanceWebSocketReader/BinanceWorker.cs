@@ -237,11 +237,11 @@ namespace BinanceWebSocketReader
                 content.AppendLine($"Symbol: {symbol}");
                 content.AppendLine($"Timestamp: {timestamp}");
                 content.AppendLine("Aggregated Data:");
-                content.AppendLine("Depth | Bid | Ask | Price | Date");
+                content.AppendLine("Depth | Bid | Ask | Price");
 
                 foreach (var data in aggregatedData)
                 {
-                    content.AppendLine($"{data.Depth}% | {data.Bid:F8} | {data.Ask:F8} | {data.Price:F8} | {data.Date}");
+                    content.AppendLine($"{data.Depth}% | {data.Bid:F8} | {data.Ask:F8} | {data.Price:F8}");
                 }
 
                 await File.WriteAllTextAsync(filePath, content.ToString(), cancellationToken);
