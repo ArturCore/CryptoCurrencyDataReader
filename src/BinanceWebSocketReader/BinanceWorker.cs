@@ -50,7 +50,7 @@ namespace BinanceWebSocketReader
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Worker started at {Time}", DateTime.UtcNow);
-            var depthPercentages = new[] { 1, 2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100 };
+            var depthPercentages = new[] { 1, 2, 3, 5, 6, 7, 8, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100 };
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
 

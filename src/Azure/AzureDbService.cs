@@ -61,8 +61,6 @@ namespace Azure
                     var entity = new AggregatedOrderBookEntity(symbol, timestamp, data);
                     await tableClient.UpsertEntityAsync(entity, TableUpdateMode.Replace, cancellationToken); // Замінюємо існуючий запис
                 }
-
-                Console.WriteLine($"Saved aggregated daily data for {symbol} (Depth: {depth}%) to Table Storage: {tableName}");
             }
         }
     }
