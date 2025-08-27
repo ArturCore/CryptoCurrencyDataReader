@@ -1,15 +1,16 @@
-﻿using Binance.Net.Clients;
-using Microsoft.Extensions.Hosting;
-using Shared;
-using Azure;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using CryptoExchange.Net.Objects.Sockets;
+﻿using Azure;
+using Azure.Core;
+using Binance.Net.Clients;
+using CryptoExchange.Net.CommonObjects;
+using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
+using CryptoExchange.Net.Objects.Sockets;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Shared;
 using System.Text;
 using System.Text.Json;
-using CryptoExchange.Net.Interfaces;
-using Azure.Core;
 
 namespace BinanceWebSocketReader
 {
@@ -66,7 +67,7 @@ namespace BinanceWebSocketReader
                         continue;
                     }
 
-                    GetOrderBookAsync(ExchangeSymbol, 5000);
+                    await GetOrderBookAsync(ExchangeSymbol, 5000);
 
                     while (!stoppingToken.IsCancellationRequested)
                     {
@@ -90,15 +91,14 @@ namespace BinanceWebSocketReader
                                 var aggregatedData = await _aggregator.AggregateOrderBookAsync(symbol, currentPrice, deepCopyOfOrderBookBySymbol, depthPercentages, cumulative: true);
                                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
                                 await _azureDbService.SaveAggregatedDataAsync(symbol, timestamp, aggregatedData, stoppingToken);
-                                // for debugging only
-                                //await SaveAggregatedDataToFileAsync(symbol, timestamp, aggregatedData, stoppingToken);
-                                _logger.LogInformation("Saved aggregated daily data for {Symbol} at {Timestamp} with price {Price}", symbol, timestamp, currentPrice);
                             }
                             catch (Exception ex)
                             {
                                 _logger.LogError(ex, "Error processing {Symbol} at {Time}: {Message}", symbol, DateTime.UtcNow, ex.Message);
                             }
                         }
+
+                        _logger.LogInformation("Saved aggregated daily data at {DepthPercentages} with price {Price}", depthPercentages.ToString(), currentPrice);
                     }
                 }
                 catch (Exception ex)
@@ -169,7 +169,7 @@ namespace BinanceWebSocketReader
             return new CallResult<UpdateSubscription>(null, "Max retries reached");
         }
 
-        public async void GetOrderBookAsync(string exchangeSymbol, int limit)
+        public async Task GetOrderBookAsync(string exchangeSymbol, int limit)
         {
             var orderbookSnapshot = _socketClient.SpotApi.ExchangeData.GetOrderBookAsync(ExchangeSymbol, 5000);
             if (orderbookSnapshot.Result.Data.Result.LastUpdateId >= LastUpdateId)
@@ -185,7 +185,7 @@ namespace BinanceWebSocketReader
             else
             {
                 await Task.Delay(500);
-                GetOrderBookAsync(exchangeSymbol, limit);
+                await GetOrderBookAsync(exchangeSymbol, limit);
             }
         }
 
@@ -225,6 +225,7 @@ namespace BinanceWebSocketReader
             );
         }
 
+        //local debug only
         private async Task SaveAggregatedDataToFileAsync(string symbol, string timestamp, List<AggregatedData> aggregatedData, CancellationToken cancellationToken)
         {
             try
