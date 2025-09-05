@@ -24,6 +24,7 @@ namespace BinanceWebSocketReader
         private string ExchangeSymbol;
         private bool Synchronisation = false;
         private long LastUpdateId;
+        private int[] DepthPercentages;
 
         public BinanceWorker(IConfiguration configuration, ILogger<BinanceWorker> logger)
         {
@@ -32,9 +33,14 @@ namespace BinanceWebSocketReader
             _restClient = new BinanceRestClient();
             _currentOrderBook = new Dictionary<string, List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>>();
 
-            string connectionString = configuration["AzureStorageConnectionString"];
             UpdateInterval = Int32.Parse(configuration["UpdateInterval"]);
             ExchangeSymbol = configuration["ExchangeSymbol"];
+            DepthPercentages = configuration["DepthPercentages"]
+                .Split(",")
+                .Select(x => int.Parse(x.Trim()))
+                .ToArray();
+
+            string? connectionString = configuration["AzureStorageConnectionString"];
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new InvalidOperationException("AzureStorageConnectionString is not set in appsettings.json or environment variables.");
@@ -84,7 +90,7 @@ namespace BinanceWebSocketReader
 
                             try
                             {
-                                var aggregatedData = await _aggregator.AggregateOrderBookAsync(symbol, currentPrice, deepCopyOfOrderBookBySymbol, depthPercentages, cumulative: true);
+                                var aggregatedData = await _aggregator.AggregateOrderBookAsync(symbol, currentPrice, deepCopyOfOrderBookBySymbol, DepthPercentages, cumulative: true);
                                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
                                 await _azureDbService.SaveAggregatedDataAsync(symbol, timestamp, aggregatedData, stoppingToken);
                             }
@@ -94,7 +100,7 @@ namespace BinanceWebSocketReader
                             }
                         }
 
-                        _logger.LogInformation("Saved aggregated daily data at {DepthPercentages} with price {Price}", depthPercentages.ToString(), currentPrice);
+                        _logger.LogInformation($"Saved aggregated minute data at {DepthPercentages} with price {currentPrice}", DepthPercentages.ToString(), currentPrice);
                     }
                 }
                 catch (Exception ex)
