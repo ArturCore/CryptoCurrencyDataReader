@@ -1,8 +1,5 @@
 ﻿using Azure;
-using Azure.Core;
 using Binance.Net.Clients;
-using CryptoExchange.Net.CommonObjects;
-using CryptoExchange.Net.Interfaces;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Objects.Sockets;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shared;
 using System.Text;
-using System.Text.Json;
 
 namespace BinanceWebSocketReader
 {
