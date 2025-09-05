@@ -362,4 +362,13 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
+# Ignore ARM deployment profiles
+*.arm.json
+
+# Ignore publish packages
+*.zip
+
+# Ignore job settings
+*.job
+
 appsettings.json
