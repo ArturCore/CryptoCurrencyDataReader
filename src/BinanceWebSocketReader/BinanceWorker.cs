@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Binance.Net.Clients;
+using Binance.Net.Objects.Models.Spot;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Objects.Sockets;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,7 @@ namespace BinanceWebSocketReader
         private readonly ILogger<BinanceWorker> _logger;
 
         private int UpdateInterval;
-        private string ExchangeSymbol;
+        private IEnumerable<string> ExchangeSymbols;
         private bool Synchronisation = false;
         private long LastUpdateId;
         private int[] DepthPercentages;
@@ -34,7 +35,10 @@ namespace BinanceWebSocketReader
             _currentOrderBook = new Dictionary<string, List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>>();
 
             UpdateInterval = Int32.Parse(configuration["UpdateInterval"]);
-            ExchangeSymbol = configuration["ExchangeSymbol"];
+            ExchangeSymbols = configuration["ExchangeSymbols"]
+                .Split(",")
+                .Select(x => x.Trim())
+                .ToList();
             DepthPercentages = configuration["DepthPercentages"]
                 .Split(",")
                 .Select(x => int.Parse(x.Trim()))
@@ -58,7 +62,7 @@ namespace BinanceWebSocketReader
             {
                 try
                 {
-                    var orderBookSubscription = await SubscribeToOrderBookAsync(ExchangeSymbol, UpdateInterval, cts.Token);
+                    var orderBookSubscription = await SubscribeToOrderBookAsync(ExchangeSymbols, UpdateInterval, cts.Token);
                     if (!orderBookSubscription.Success)
                     {
                         _logger.LogWarning("Failed to subscribe to order book updates: {Error}", orderBookSubscription.Error?.Message);
@@ -66,7 +70,7 @@ namespace BinanceWebSocketReader
                         continue;
                     }
 
-                    await GetOrderBookAsync(ExchangeSymbol, 5000);
+                    await GetOrderBookAsync(ExchangeSymbols, 5000);
 
                     while (!stoppingToken.IsCancellationRequested)
                     {
@@ -75,7 +79,7 @@ namespace BinanceWebSocketReader
                         var secondsToWait = 60 - now.Second;
                         await Task.Delay(secondsToWait * 1000);
 
-                        var currentPrice = await GetCurrentPricesAsync(ExchangeSymbol, stoppingToken);
+                        IEnumerable<BinancePrice> currentPrices = await GetCurrentPricesAsync(ExchangeSymbols, stoppingToken);
 
                         // Copy data for aggregation
                         var deepCopyOfOrderBook = DeepCopyDailyData(_currentOrderBook);
@@ -85,19 +89,26 @@ namespace BinanceWebSocketReader
                             var deepCopyOfOrderBookBySymbol = deepCopyOfOrderBook[symbol];
                             if (!deepCopyOfOrderBookBySymbol.Any()) continue;
 
+                            var priceObj = currentPrices.FirstOrDefault(x => x.Symbol == symbol);
+                            if (priceObj == null)
+                            {
+                                _logger.LogWarning("No current price found for symbol {Symbol} at {Time}", symbol, DateTime.UtcNow);
+                                continue;
+                            }
+                            decimal currentPrice = priceObj.Price;
                             try
                             {
                                 var aggregatedData = await _aggregator.AggregateOrderBookAsync(symbol, currentPrice, deepCopyOfOrderBookBySymbol, DepthPercentages, cumulative: true);
                                 string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-                                await _azureDbService.SaveAggregatedDataAsync(symbol, timestamp, aggregatedData, stoppingToken);
+                                //await _azureDbService.SaveAggregatedDataAsync(symbol, timestamp, aggregatedData, stoppingToken);
+                                await SaveAggregatedDataToFileAsync(symbol, timestamp, aggregatedData, stoppingToken);
+                                _logger.LogInformation($"Saved aggregated minute data at {DepthPercentages} with price {currentPrice}", DepthPercentages.ToString(), currentPrice);
                             }
                             catch (Exception ex)
                             {
                                 _logger.LogError(ex, "Error processing {Symbol} at {Time}: {Message}", symbol, DateTime.UtcNow, ex.Message);
                             }
                         }
-
-                        _logger.LogInformation($"Saved aggregated minute data at {DepthPercentages} with price {currentPrice}", DepthPercentages.ToString(), currentPrice);
                     }
                 }
                 catch (Exception ex)
@@ -108,7 +119,7 @@ namespace BinanceWebSocketReader
             }
         }
 
-        private async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookAsync(string symbol, int? updateInterval, CancellationToken cancellationToken)
+        private async Task<CallResult<UpdateSubscription>> SubscribeToOrderBookAsync(IEnumerable<string> symbols, int? updateInterval, CancellationToken cancellationToken)
         {
             int retryAttempts = 3;
             int retryDelayMs = 5000;
@@ -118,7 +129,7 @@ namespace BinanceWebSocketReader
                 try
                 {
                     var result = await _socketClient.SpotApi.ExchangeData.SubscribeToOrderBookUpdatesAsync(
-                        symbol,
+                        symbols,
                         updateInterval,
                         (update) =>
                         {
@@ -168,35 +179,39 @@ namespace BinanceWebSocketReader
             return new CallResult<UpdateSubscription>(null, "Max retries reached");
         }
 
-        public async Task GetOrderBookAsync(string exchangeSymbol, int limit)
+        public async Task GetOrderBookAsync(IEnumerable<string> exchangeSymbols, int limit)
         {
-            var orderbookSnapshot = _socketClient.SpotApi.ExchangeData.GetOrderBookAsync(ExchangeSymbol, 5000);
-            if (orderbookSnapshot.Result.Data.Result.LastUpdateId >= LastUpdateId)
+            foreach (string symbol in exchangeSymbols)
             {
-                var newBids = orderbookSnapshot.Result.Data.Result.Bids.ToDictionary(b => b.Price, b => b.Quantity);
-                var newAsks = orderbookSnapshot.Result.Data.Result.Asks.ToDictionary(a => a.Price, a => a.Quantity);
+                var orderbookSnapshot = _socketClient.SpotApi.ExchangeData.GetOrderBookAsync(symbol, 5000);
+                //temporary removed
+                //if (orderbookSnapshot.Result.Data.Result.LastUpdateId >= LastUpdateId)
+                //{
+                    var newBids = orderbookSnapshot.Result.Data.Result.Bids.ToDictionary(b => b.Price, b => b.Quantity);
+                    var newAsks = orderbookSnapshot.Result.Data.Result.Asks.ToDictionary(a => a.Price, a => a.Quantity);
 
-                _currentOrderBook[exchangeSymbol] = new List<(Dictionary<decimal, decimal> Bids, Dictionary<decimal, decimal> Asks)>();
-                _currentOrderBook[exchangeSymbol].Add((newBids, newAsks));
+                    _currentOrderBook[symbol] = new List<(Dictionary<decimal, decimal> Bids, Dictionary<decimal, decimal> Asks)>();
+                    _currentOrderBook[symbol].Add((newBids, newAsks));
 
-                Synchronisation = true;
-            } 
-            else
-            {
-                await Task.Delay(500);
-                await GetOrderBookAsync(exchangeSymbol, limit);
+                    Synchronisation = true;
+                //}
+                //else
+                //{
+                //    await Task.Delay(500);
+                //    await GetOrderBookAsync(exchangeSymbols, limit);
+                //}
             }
         }
 
-        private async Task<decimal> GetCurrentPricesAsync(string symbol, CancellationToken cancellationToken)
+        private async Task<IEnumerable<BinancePrice>> GetCurrentPricesAsync(IEnumerable<string> symbols, CancellationToken cancellationToken)
         {
-            decimal price = 0;
+            List<BinancePrice> prices = new();
             try
             {
-                var result = await _restClient.SpotApi.ExchangeData.GetPriceAsync(symbol, cancellationToken);
+                var result = await _restClient.SpotApi.ExchangeData.GetPricesAsync(symbols, cancellationToken);
                 if (result.Success)
                 {
-                    price = result.Data.Price;
+                    prices = result.Data.ToList();
                 }
                 else
                 {
@@ -207,7 +222,7 @@ namespace BinanceWebSocketReader
             {
                 _logger.LogError(ex, "Error fetching current prices: {Message}", ex.Message);
             }
-            return price;
+            return prices;
         }
 
         private Dictionary<string, List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>> DeepCopyDailyData(
