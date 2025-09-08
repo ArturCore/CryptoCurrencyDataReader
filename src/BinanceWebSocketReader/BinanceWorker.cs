@@ -2,8 +2,6 @@
 using Binance.Net.Clients;
 using Binance.Net.Interfaces;
 using Binance.Net.Objects.Models.Spot;
-using CryptoExchange.Net.Objects;
-using CryptoExchange.Net.Objects.Sockets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -101,7 +99,10 @@ namespace BinanceWebSocketReader
                                     symbol, priceObj.Price, bySymbol, DepthPercentages, cumulative: true);
 
                                 var ts = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-                                await SaveAggregatedDataToFileAsync(symbol, ts, aggregated, stoppingToken);
+                                await _azureDbService.SaveAggregatedDataAsync(symbol, ts, aggregated, stoppingToken);
+
+                                //for local debug
+                                //await SaveAggregatedDataToFileAsync(symbol, ts, aggregated, stoppingToken);
                             }
                             catch (Exception exAgg)
                             {
