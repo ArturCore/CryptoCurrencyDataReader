@@ -18,7 +18,13 @@ var builder = Host.CreateDefaultBuilder(args)
 
         services.AddHostedService<BinanceWorker>();
 
-        services.AddSingleton(Channel.CreateUnbounded<IBinanceEventOrderBook>());
+        services.AddSingleton(Channel.CreateBounded<IBinanceEventOrderBook>(
+            new BoundedChannelOptions(20_000)
+            {
+                SingleReader = true,
+                SingleWriter = false,
+                FullMode = BoundedChannelFullMode.DropOldest
+            }));
     });
 
 using var host = builder.Build();
