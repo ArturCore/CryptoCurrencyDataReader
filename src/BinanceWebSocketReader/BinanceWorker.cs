@@ -28,8 +28,8 @@ namespace BinanceWebSocketReader
 
         private int UpdateInterval;
         private IEnumerable<string> ExchangeSymbols;
-        private bool Synchronisation = false;
-        private long LastUpdateId;
+        //private bool Synchronisation = false;
+        //private long LastUpdateId;
         private int[] DepthPercentages;
 
         public BinanceWorker(IConfiguration configuration, ILogger<BinanceWorker> logger, Channel<IBinanceEventOrderBook> channel)
@@ -135,25 +135,7 @@ namespace BinanceWebSocketReader
                         updateInterval,
                         (update) =>
                         {
-                            channel.Writer.TryWrite(update.Data);
-
-                            //string sym = update.Data.Symbol;
-
-                            //var newBids = update.Data.Bids.ToDictionary(b => b.Price, b => b.Quantity);
-                            //var newAsks = update.Data.Asks.ToDictionary(a => a.Price, a => a.Quantity);
-
-                            //var (existingBids, existingAsks) = _currentOrderBook[sym].Last();
-
-                            //foreach (var bid in newBids)
-                            //    existingBids[bid.Key] = bid.Value;
-
-                            //foreach (var ask in newAsks)
-                            //    existingAsks[ask.Key] = ask.Value;
-
-                            //_currentOrderBook[sym] = new List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>
-                            //{
-                            //    (existingBids, existingAsks)
-                            //};                                
+                            channel.Writer.TryWrite(update.Data);                            
                         },
                         cancellationToken
                     );
@@ -196,7 +178,6 @@ namespace BinanceWebSocketReader
             }
 
             Interlocked.Exchange(ref _snapshot, new BookSnapshot(books));
-            //Synchronisation = true;
         }
 
         private async Task<IEnumerable<BinancePrice>> GetCurrentPricesAsync(IEnumerable<string> symbols, CancellationToken cancellationToken)
