@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Binance.Net.Clients;
+using Binance.Net.Interfaces;
 using Binance.Net.Objects.Models.Spot;
 using CryptoExchange.Net.Objects;
 using CryptoExchange.Net.Objects.Sockets;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shared;
 using System.Text;
+using System.Threading.Channels;
 
 namespace BinanceWebSocketReader
 {
@@ -20,6 +22,7 @@ namespace BinanceWebSocketReader
         private readonly Dictionary<string, List<(Dictionary<decimal, decimal> Bids, Dictionary<decimal, decimal> Asks)>> _currentOrderBook; // Використовуємо _currentOrderBook
         private readonly object _lock = new object();
         private readonly ILogger<BinanceWorker> _logger;
+        private readonly Channel<IBinanceEventOrderBook> channel;
 
         private int UpdateInterval;
         private IEnumerable<string> ExchangeSymbols;
@@ -27,7 +30,7 @@ namespace BinanceWebSocketReader
         private long LastUpdateId;
         private int[] DepthPercentages;
 
-        public BinanceWorker(IConfiguration configuration, ILogger<BinanceWorker> logger)
+        public BinanceWorker(IConfiguration configuration, ILogger<BinanceWorker> logger, Channel<IBinanceEventOrderBook> channel)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _socketClient = new BinanceSocketClient();
@@ -52,6 +55,7 @@ namespace BinanceWebSocketReader
 
             _azureDbService = new AzureDbService(connectionString);
             _aggregator = new OrderBookAggregator();
+            this.channel = channel;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -71,6 +75,7 @@ namespace BinanceWebSocketReader
                     }
 
                     await GetOrderBookAsync(ExchangeSymbols, 5000);
+                    await ReadChannelAsync(stoppingToken);
 
                     while (!stoppingToken.IsCancellationRequested)
                     {
@@ -82,7 +87,7 @@ namespace BinanceWebSocketReader
                         IEnumerable<BinancePrice> currentPrices = await GetCurrentPricesAsync(ExchangeSymbols, stoppingToken);
 
                         // Copy data for aggregation
-                        var deepCopyOfOrderBook = DeepCopyDailyData(_currentOrderBook);
+                        var deepCopyOfOrderBook = DeepCopyData(_currentOrderBook);
 
                         foreach (var symbol in deepCopyOfOrderBook.Keys.ToList())
                         {
@@ -131,36 +136,27 @@ namespace BinanceWebSocketReader
                     var result = await _socketClient.SpotApi.ExchangeData.SubscribeToOrderBookUpdatesAsync(
                         symbols,
                         updateInterval,
-                        (update) =>
+                        async (update) =>
                         {
-                            if (Synchronisation)
-                            {
-                                lock (_lock)
-                                {
-                                    string sym = update.Data.Symbol;
+                            await channel.Writer.WriteAsync(update.Data);
 
-                                    var newBids = update.Data.Bids.ToDictionary(b => b.Price, b => b.Quantity);
-                                    var newAsks = update.Data.Asks.ToDictionary(a => a.Price, a => a.Quantity);
+                            //string sym = update.Data.Symbol;
 
-                                    var (existingBids, existingAsks) = _currentOrderBook[sym].Last();
+                            //var newBids = update.Data.Bids.ToDictionary(b => b.Price, b => b.Quantity);
+                            //var newAsks = update.Data.Asks.ToDictionary(a => a.Price, a => a.Quantity);
 
-                                    foreach (var bid in newBids)
-                                        existingBids[bid.Key] = bid.Value;
+                            //var (existingBids, existingAsks) = _currentOrderBook[sym].Last();
 
-                                    foreach (var ask in newAsks)
-                                        existingAsks[ask.Key] = ask.Value;
+                            //foreach (var bid in newBids)
+                            //    existingBids[bid.Key] = bid.Value;
 
-                                    _currentOrderBook[sym] = new List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>
-                                    {
-                                        (existingBids, existingAsks)
-                                    };
-                                }
-                            }
-                            else
-                            {
-                                //for synchronisation only
-                                LastUpdateId = update.Data.LastUpdateId;
-                            }
+                            //foreach (var ask in newAsks)
+                            //    existingAsks[ask.Key] = ask.Value;
+
+                            //_currentOrderBook[sym] = new List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>
+                            //{
+                            //    (existingBids, existingAsks)
+                            //};                                
                         },
                         cancellationToken
                     );
@@ -225,7 +221,7 @@ namespace BinanceWebSocketReader
             return prices;
         }
 
-        private Dictionary<string, List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>> DeepCopyDailyData(
+        private Dictionary<string, List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>> DeepCopyData(
             Dictionary<string, List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>> original)
         {
             return original.ToDictionary(
@@ -264,6 +260,31 @@ namespace BinanceWebSocketReader
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to save aggregated data to file for {Symbol} at {Timestamp}: {Message}", symbol, timestamp, ex.Message);
+            }
+        }
+
+        private async Task ReadChannelAsync(CancellationToken cancellationToken)
+        {
+            while (await channel.Reader.WaitToReadAsync(cancellationToken))
+            {
+                var update = await channel.Reader.ReadAsync(cancellationToken);
+                string sym = update.Symbol;
+
+                var newBids = update.Bids.ToDictionary(b => b.Price, b => b.Quantity);
+                var newAsks = update.Asks.ToDictionary(a => a.Price, a => a.Quantity);
+
+                var (existingBids, existingAsks) = _currentOrderBook[sym].Last();
+
+                foreach (var bid in newBids)
+                    existingBids[bid.Key] = bid.Value;
+
+                foreach (var ask in newAsks)
+                    existingAsks[ask.Key] = ask.Value;
+
+                _currentOrderBook[sym] = new List<(Dictionary<decimal, decimal>, Dictionary<decimal, decimal>)>
+                {
+                    (existingBids, existingAsks)
+                };
             }
         }
 
