@@ -26,8 +26,6 @@ namespace BinanceWebSocketReader
 
         private int UpdateInterval;
         private IEnumerable<string> ExchangeSymbols;
-        //private bool Synchronisation = false;
-        //private long LastUpdateId;
         private int[] DepthPercentages;
 
         public BinanceWorker(IConfiguration configuration, ILogger<BinanceWorker> logger, Channel<IBinanceEventOrderBook> channel)
