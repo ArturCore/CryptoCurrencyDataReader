@@ -253,17 +253,12 @@ namespace BinanceWebSocketReader
             while (await channel.Reader.WaitToReadAsync(cancellationToken))
             {
                 batch.Clear();
-
                 while (channel.Reader.TryRead(out var upd))
                     batch.Add(upd);
 
-                if (batch.Count == 0)
-                {
-                    continue;
-                }
+                if (batch.Count == 0) continue;
 
                 var grouped = batch.GroupBy(u => u.Symbol);
-
                 var books = _snapshot.Books;
 
                 foreach (var g in grouped)
@@ -275,29 +270,57 @@ namespace BinanceWebSocketReader
                         : (ImmutableDictionary<decimal, decimal>.Empty,
                            ImmutableDictionary<decimal, decimal>.Empty);
 
-                    Dictionary<decimal, decimal>? tmpB = null;
-                    Dictionary<decimal, decimal>? tmpA = null;
+                    Dictionary<decimal, decimal>? upB = null;
+                    Dictionary<decimal, decimal>? upA = null;
+                    HashSet<decimal>? remB = null;
+                    HashSet<decimal>? remA = null;
 
                     foreach (var u in g)
                     {
                         foreach (var b in u.Bids)
                         {
-                            tmpB ??= new();
-                            tmpB[b.Price] = b.Quantity;
+                            if (b.Quantity == 0m)
+                            {
+                                upB?.Remove(b.Price);
+                                (remB ??= new()).Add(b.Price);
+                            }
+                            else
+                            {
+                                remB?.Remove(b.Price);
+                                (upB ??= new())[b.Price] = b.Quantity;
+                            }
                         }
+
+                        // Asks
                         foreach (var a in u.Asks)
                         {
-                            tmpA ??= new();
-                            tmpA[a.Price] = a.Quantity;
+                            if (a.Quantity == 0m)
+                            {
+                                upA?.Remove(a.Price);
+                                (remA ??= new()).Add(a.Price);
+                            }
+                            else
+                            {
+                                remA?.Remove(a.Price);
+                                (upA ??= new())[a.Price] = a.Quantity;
+                            }
                         }
                     }
 
-                    if (tmpB is not null)
-                        foreach (var kv in tmpB)
+                    if (remB is not null)
+                        foreach (var p in remB)
+                            bids = bids.Remove(p);
+
+                    if (upB is not null)
+                        foreach (var kv in upB)
                             bids = bids.SetItem(kv.Key, kv.Value);
 
-                    if (tmpA is not null)
-                        foreach (var kv in tmpA)
+                    if (remA is not null)
+                        foreach (var p in remA)
+                            asks = asks.Remove(p);
+
+                    if (upA is not null)
+                        foreach (var kv in upA)
                             asks = asks.SetItem(kv.Key, kv.Value);
 
                     books = books.SetItem(symbol, (bids, asks));
