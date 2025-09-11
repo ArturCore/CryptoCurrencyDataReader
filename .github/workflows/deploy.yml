@@ -42,6 +42,10 @@ jobs:
           dotnet publish "$PROJECT" -c Release -o out --framework net9.0
           mkdir -p pkg/app_data/jobs/continuous/$JOB_NAME
           cp -r out/* pkg/app_data/jobs/continuous/$JOB_NAME/
+      
+          # minimum site placeholder
+          echo 'OK' > pkg/index.html
+      
           cat > pkg/app_data/jobs/continuous/$JOB_NAME/run.sh << 'EOF'
           #!/bin/sh
           cd "$(dirname "$0")"
@@ -58,4 +62,5 @@ jobs:
           slot-name: ${{ inputs.slot }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           package: ./deploy.zip
+
 
