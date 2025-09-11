@@ -1,0 +1,60 @@
+name: Deploy worker to Azure Web App (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch / tag / SHA to deploy'
+        required: false
+        default: 'master'
+      slot:
+        description: 'Deployment slot'
+        type: choice
+        options: [production, staging]
+        default: production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.slot }}
+    concurrency:
+      group: webapp-${{ inputs.slot }}
+      cancel-in-progress: true
+
+    env:
+      PROJECT: CryptoCurrencyDataReader/src/BinanceWebSocketReader/BinanceWebSocketReader.csproj
+      ASSEMBLY: BinanceWebSocketReader.dll
+      JOB_NAME: binance-worker
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Publish worker
+        run: |
+          dotnet publish "$PROJECT" -c Release -o out --framework net9.0
+          mkdir -p pkg/app_data/jobs/continuous/$JOB_NAME
+          cp -r out/* pkg/app_data/jobs/continuous/$JOB_NAME/
+          cat > pkg/app_data/jobs/continuous/$JOB_NAME/run.sh << 'EOF'
+          #!/bin/sh
+          cd "$(dirname "$0")"
+          exec dotnet __ASSEMBLY_PLACEHOLDER__
+          EOF
+          sed -i "s#__ASSEMBLY_PLACEHOLDER__#${ASSEMBLY}#g" pkg/app_data/jobs/continuous/$JOB_NAME/run.sh
+          chmod +x pkg/app_data/jobs/continuous/$JOB_NAME/run.sh
+          cd pkg && zip -r ../deploy.zip . && cd ..
+
+      - name: Deploy ZIP as WebJob
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          slot-name: ${{ inputs.slot }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          package: ./deploy.zip
