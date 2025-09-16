@@ -40,19 +40,23 @@ jobs:
       - name: Publish worker
         run: |
           dotnet publish "$PROJECT" -c Release -o out --framework net9.0
-          mkdir -p pkg/app_data/jobs/continuous/$JOB_NAME
-          cp -r out/* pkg/app_data/jobs/continuous/$JOB_NAME/
       
-          # minimum site placeholder
+          mkdir -p pkg/App_Data/jobs/continuous/$JOB_NAME
+          cp -r out/* pkg/App_Data/jobs/continuous/$JOB_NAME/
+      
           echo 'OK' > pkg/index.html
       
-          cat > pkg/app_data/jobs/continuous/$JOB_NAME/run.sh << 'EOF'
-          #!/bin/sh
+          cat > pkg/App_Data/jobs/continuous/$JOB_NAME/run.sh << 'EOF'
+          set -e
           cd "$(dirname "$0")"
-          exec dotnet __ASSEMBLY_PLACEHOLDER__
+          exec dotnet BinanceWebSocketReader.dll
           EOF
-          sed -i "s#__ASSEMBLY_PLACEHOLDER__#${ASSEMBLY}#g" pkg/app_data/jobs/continuous/$JOB_NAME/run.sh
-          chmod +x pkg/app_data/jobs/continuous/$JOB_NAME/run.sh
+          chmod +x pkg/App_Data/jobs/continuous/$JOB_NAME/run.sh
+      
+          cat > pkg/App_Data/jobs/continuous/$JOB_NAME/settings.job << 'EOF'
+          { "is_singleton": true }
+          EOF
+
           cd pkg && zip -r ../deploy.zip . && cd ..
 
       - name: Deploy ZIP as WebJob
@@ -62,5 +66,3 @@ jobs:
           slot-name: ${{ inputs.slot }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           package: ./deploy.zip
-
-
