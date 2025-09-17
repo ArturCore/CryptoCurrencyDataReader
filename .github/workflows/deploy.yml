@@ -39,28 +39,29 @@ jobs:
 
       - name: Publish worker
         run: |
+          set -e
           dotnet publish "$PROJECT" -c Release -o out --framework net9.0
       
           mkdir -p pkg/App_Data/jobs/continuous/$JOB_NAME
           cp -r out/* pkg/App_Data/jobs/continuous/$JOB_NAME/
-      
           echo 'OK' > pkg/index.html
       
           cat > pkg/App_Data/jobs/continuous/$JOB_NAME/run.sh << 'EOF'
+          #!/bin/sh
           set -e
           cd "$(dirname "$0")"
           exec dotnet BinanceWebSocketReader.dll
           EOF
           chmod +x pkg/App_Data/jobs/continuous/$JOB_NAME/run.sh
+          sed -i 's/\r$//' pkg/App_Data/jobs/continuous/$JOB_NAME/run.sh
       
-          cat > pkg/App_Data/jobs/continuous/$JOB_NAME/settings.job << 'EOF'
-          { "is_singleton": true }
-          EOF
-
-          echo "==== PKG TREE ===="
-          find pkg -maxdepth 5 -type f | sort
-
+          echo "==== PKG TREE (before zip) ===="
+          find pkg -maxdepth 5 -type f -printf "%s %p\n" | sort -n | tail -n 40
+      
           cd pkg && zip -r ../deploy.zip . && cd ..
+      
+      - name: Inspect ZIP (sizes)
+        run: unzip -l deploy.zip | tail -n 60
 
       - name: Deploy ZIP as WebJob
         uses: azure/webapps-deploy@v2
@@ -75,3 +76,4 @@ jobs:
         with:
           name: deploy-zip
           path: ./deploy.zip
+
