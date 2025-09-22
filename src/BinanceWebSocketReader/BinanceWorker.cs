@@ -97,10 +97,10 @@ namespace BinanceWebSocketReader
                                     symbol, priceObj.Price, bySymbol, DepthPercentages, cumulative: true);
 
                                 var ts = DateTime.UtcNow.ToString("yyyyMMddHHmm");
-                                await _azureDbService.SaveAggregatedDataAsync(symbol, ts, aggregated, stoppingToken);
+                                //await _azureDbService.SaveAggregatedDataAsync(symbol, ts, aggregated, stoppingToken);
 
                                 //for local debug
-                                //await SaveAggregatedDataToFileAsync(symbol, ts, aggregated, stoppingToken);
+                                await SaveAggregatedDataToFileAsync(symbol, ts, aggregated, stoppingToken);
                             }
                             catch (Exception exAgg)
                             {
@@ -224,7 +224,7 @@ namespace BinanceWebSocketReader
             try
             {
                 string fileName = $"{symbol}_{timestamp}.txt";
-                string filePath = Path.Combine("E:\\CryptoData_Test", fileName);
+                string filePath = Path.Combine("/data", fileName);
 
                 StringBuilder content = new StringBuilder();
                 content.AppendLine($"Symbol: {symbol}");
