@@ -52,7 +52,7 @@ namespace Azure
             foreach (var group in groupedData)
             {
                 int depth = group.Key;
-                string tableName = $"Test{symbol}Depth{depth}";
+                string tableName = $"{symbol}Depth{depth}";
                 var tableClient = await GetOrCreateTableAsync(tableName);
 
                 foreach (var data in group)
