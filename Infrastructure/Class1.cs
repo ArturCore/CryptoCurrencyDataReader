@@ -1,7 +1,10 @@
 ﻿namespace Infrastructure
 {
-    public class Class1
-    {
+    // Azure db
+    public interface IEventStore { }
 
-    }
+    // Azure message queue
+    public interface ITemporaryOrderBookStore { }
+
+
 }

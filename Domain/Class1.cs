@@ -1,7 +1,9 @@
 ﻿namespace Domain
 {
-    public class Class1
-    {
+    //models
+    public class AggregatedOrderBookEvent { }
 
-    }
+    // for expansion
+    public class TradeEvent { }
+    public class BalanceEvent { }
 }
