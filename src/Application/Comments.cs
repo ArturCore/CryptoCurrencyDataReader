@@ -10,15 +10,10 @@
     // source data can be different - different orderbooks, aggregated data from the source etc.
     // adapter layer for diffferent sources? think about it
 
-    // depends on the exchange endpoint (f.e. Binance, Bybit)
-    public class IncomingEvent {
-        // validation, deduplication & data converting into internal model
-    }
-
     // everything through interfaces
 }
 
-// describe data flow
-// clarify requirements
+// describe data flow DONE
+// clarify requirements DONE
 // start describe entities (models)
-// describe user stories
+// describe user stories DONE
