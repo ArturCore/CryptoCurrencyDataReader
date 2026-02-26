@@ -1,10 +1,11 @@
-﻿
-// when app starts - send and request to exchange to create
+﻿using Inbound;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-
-
-// webhook connection
-
-// basic validation
-
-// call application layer on each event
+await Host.CreateDefaultBuilder(args)
+    .ConfigureServices(services =>
+    {
+        services.AddHostedService<AppWorker>();
+    })
+    .Build()
+    .RunAsync();
