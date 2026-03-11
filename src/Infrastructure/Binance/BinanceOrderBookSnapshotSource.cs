@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Core.Interfaces;
 using Domain;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Infrastructure.Binance
 {
     internal class BinanceOrderBookSnapshotSource : IOrderBookSnapshotSource
     {
-        public Task<OrderBookSnapshot> GetSnapshotAsync(string symbol, int limit, CancellationToken cancellationToken)
+        IResponse<Task<OrderBookSnapshot>> IOrderBookSnapshotSource.GetSnapshotAsync(string symbol, int limit, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

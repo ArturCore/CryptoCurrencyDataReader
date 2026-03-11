@@ -4,10 +4,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{695CA99C-A1C2-48F6-81B5-C6A622D8C36A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AD02A95C-14AE-4F98-9F57-8C8E5023F452} = {AD02A95C-14AE-4F98-9F57-8C8E5023F452}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\Domain\Domain.csproj", "{8BFBBE22-277E-4BD8-958E-49BE5EA2E611}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src\Application\Application.csproj", "{AD02A95C-14AE-4F98-9F57-8C8E5023F452}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "src\Core\Core.csproj", "{AD02A95C-14AE-4F98-9F57-8C8E5023F452}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inbound", "src\Inbound\Inbound.csproj", "{D969152D-A80A-4E88-8341-ADE1426FC4C6}"
 EndProject

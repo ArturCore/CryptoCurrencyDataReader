@@ -1,6 +1,6 @@
 ﻿using Domain;
 
-namespace Application.Interfaces
+namespace Core.Interfaces
 {
     public interface IOrderBookDeltaStream
     {
