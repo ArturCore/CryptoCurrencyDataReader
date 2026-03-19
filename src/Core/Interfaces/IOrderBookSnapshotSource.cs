@@ -5,6 +5,6 @@ namespace Core.Interfaces
 {
     public interface IOrderBookSnapshotSource
     {
-        IResponse<Task<OrderBookSnapshot>> GetSnapshotAsync(string symbol, int limit, CancellationToken cancellationToken);
+        Task<IResponse<OrderBookSnapshot>> GetSnapshotAsync(string symbol, int limit, CancellationToken cancellationToken);
     }
 }

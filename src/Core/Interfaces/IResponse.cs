@@ -3,7 +3,7 @@
     public interface IResponse<T>
     {
         bool IsSuccess { get; }
-        T? Response { get; }
+        T? Data { get; }
         string? ErrorMessage { get; }
     }
 }

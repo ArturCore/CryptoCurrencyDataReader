@@ -1,13 +1,32 @@
-﻿using Core.Interfaces;
+﻿using Binance.Net.Clients;
+using Core;
+using Core.DTO;
+using Core.Interfaces;
 using Domain;
+using Infrastructure.Binance.Mappers;
 
 namespace Infrastructure.Binance
 {
-    internal class BinanceOrderBookSnapshotSource : IOrderBookSnapshotSource
+    public class BinanceOrderBookSnapshotSource : IOrderBookSnapshotSource
     {
-        IResponse<Task<OrderBookSnapshot>> IOrderBookSnapshotSource.GetSnapshotAsync(string symbol, int limit, CancellationToken cancellationToken)
+        BinanceRestClient BinanceRestClient { get; set; }
+        BinanceOrderBookSnapshotMapper Mapper { get; set; }
+
+        BinanceOrderBookSnapshotSource(BinanceRestClient BinanceRestClient, BinanceOrderBookSnapshotMapper Mapper)
         {
-            throw new NotImplementedException();
+            this.BinanceRestClient = BinanceRestClient ?? throw new ArgumentNullException();
+            this.Mapper = Mapper ?? throw new ArgumentNullException();
+        }
+
+        public async Task<IResponse<OrderBookSnapshot>> GetSnapshotAsync(string symbol, int limit, CancellationToken cancellationToken)
+        {
+            var sdkResult = await BinanceRestClient.SpotApi.ExchangeData.GetOrderBookAsync(symbol, limit, cancellationToken);
+            var externalOrderBook = Mapper.Map(sdkResult);
+
+            OrderBookSnapshot orderBookSnapshot = Mapper.Map(externalOrderBook);
+            orderBookSnapshot.Symbol = symbol;
+
+            return Response<OrderBookSnapshot>.Success(orderBookSnapshot);
         }
     }
 }
