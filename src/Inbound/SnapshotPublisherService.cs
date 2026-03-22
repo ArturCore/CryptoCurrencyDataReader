@@ -11,8 +11,6 @@ namespace Invound
         /// at the start of the project:
         /// get snapshot
         /// apply snapshot
-        /// start stream
-        /// publish every update
         /// 
         private readonly IOrderBookSnapshotSource orderBookSnapshotSource;
         private readonly SnapshotPublisherOptions options;
