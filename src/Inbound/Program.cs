@@ -1,20 +1,25 @@
-﻿using Core.Interfaces;
-using Inbound;
+﻿using Inbound;
+using Infrastructure.Extentions;
+using Invound;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Infrastructure.Extentions;
+using Microsoft.Extensions.Options;
 
 HostApplicationBuilder builder = new HostApplicationBuilder();
 
-builder.Services.AddScoped<IOrderBookMapper>();
-builder.Services.AddScoped<IOrderBookSnapshotSource>();
-
-builder.Services.AddInfrastructure();
+var configuration = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: false)
+    .Build();
 
 await Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
+    .ConfigureServices((services) =>
     {
-        services.AddHostedService<AppWorker>();
+        services.AddSingleton<IConfiguration>(configuration);
+        services.Configure<SnapshotPublisherOptions>(configuration.GetSection("SnapshotPublisherOptions"));
+
+        services.AddInfrastructure();
+        services.AddHostedService<SnapshotPublisherService>();
     })
     .Build()
     .RunAsync();

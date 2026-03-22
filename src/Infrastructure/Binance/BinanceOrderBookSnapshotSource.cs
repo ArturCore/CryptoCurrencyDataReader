@@ -12,7 +12,7 @@ namespace Infrastructure.Binance
         BinanceRestClient BinanceRestClient { get; set; }
         BinanceOrderBookSnapshotMapper Mapper { get; set; }
 
-        BinanceOrderBookSnapshotSource(BinanceRestClient BinanceRestClient, BinanceOrderBookSnapshotMapper Mapper)
+        public BinanceOrderBookSnapshotSource(BinanceRestClient BinanceRestClient, BinanceOrderBookSnapshotMapper Mapper)
         {
             this.BinanceRestClient = BinanceRestClient ?? throw new ArgumentNullException();
             this.Mapper = Mapper ?? throw new ArgumentNullException();
