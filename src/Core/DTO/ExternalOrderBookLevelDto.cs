@@ -3,6 +3,6 @@
     public class ExternalOrderBookLevelDto
     {
         public decimal Price { get; init; }
-        public decimal Quantity { get; init; }
+        public decimal Volume { get; init; }
     }
 }

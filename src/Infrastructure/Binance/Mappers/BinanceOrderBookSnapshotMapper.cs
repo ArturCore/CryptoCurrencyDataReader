@@ -12,11 +12,11 @@ namespace Infrastructure.Binance.Mappers
         public ExternalOrderBookDto Map(WebCallResult<BinanceOrderBook> sdkResult)
         {
             var bids = sdkResult.Data?.Bids
-                .Select(b => new ExternalOrderBookLevelDto { Price = b.Price, Quantity = b.Quantity })
+                .Select(b => new ExternalOrderBookLevelDto { Price = b.Price, Volume = b.Quantity })
                 .ToList() ?? new List<ExternalOrderBookLevelDto>();
 
             var asks = sdkResult.Data?.Asks
-                .Select(a => new ExternalOrderBookLevelDto { Price = a.Price, Quantity = a.Quantity })
+                .Select(a => new ExternalOrderBookLevelDto { Price = a.Price, Volume = a.Quantity })
                 .ToList() ?? new List<ExternalOrderBookLevelDto>();
 
             return new ExternalOrderBookDto
@@ -31,10 +31,10 @@ namespace Infrastructure.Binance.Mappers
             return new OrderBookSnapshot
             {
                 Bids = callResult.Bids
-                    .Select(b => new OrderBookLevel { Price = b.Price, Volume = b.Quantity })
+                    .Select(b => new OrderBookLevel { Price = b.Price, Volume = b.Volume })
                     .ToList(),
                 Asks = callResult.Asks
-                    .Select(a => new OrderBookLevel { Price = a.Price, Volume = a.Quantity })
+                    .Select(a => new OrderBookLevel { Price = a.Price, Volume = a.Volume })
                     .ToList()
             };
         }
