@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Infrastructure.Tests;
 
-public class BinanceOrderBookSnapshotSourceTestss
+public class BinanceOrderBookSnapshotSourceTests
 {
     public class BinanceOrderBookSnapshotSourceTests
     {
