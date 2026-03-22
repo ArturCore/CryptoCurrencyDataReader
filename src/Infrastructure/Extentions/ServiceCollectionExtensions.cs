@@ -16,11 +16,12 @@ namespace Infrastructure.Extentions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
-            services.AddTransient<IOrderBookSnapshotSource, BinanceOrderBookSnapshotSource>();
-            services.AddTransient<BinanceOrderBookSnapshotMapper>();
-            services.AddTransient<IBinanceClient, BinanceRestClientAdapter>();
-
             services.AddSingleton<BinanceRestClient>();
+
+            services.AddTransient<IBinanceClient, BinanceRestClientAdapter>();
+            services.AddSingleton<BinanceOrderBookSnapshotMapper>();
+            services.AddTransient<IBinanceOrderBookSnapshotMapper, BinanceOrderBookSnapshotMapperAdapter>();
+            services.AddTransient<IOrderBookSnapshotSource, BinanceOrderBookSnapshotSource>();
 
             return services;
         }

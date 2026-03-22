@@ -11,9 +11,9 @@ namespace Infrastructure.Binance
     public class BinanceOrderBookSnapshotSource : IOrderBookSnapshotSource
     {
         private readonly IBinanceClient _binanceClient;
-        private readonly BinanceOrderBookSnapshotMapper _mapper;
+        private readonly IBinanceOrderBookSnapshotMapper _mapper;
 
-        public BinanceOrderBookSnapshotSource(IBinanceClient binanceClient, BinanceOrderBookSnapshotMapper mapper)
+        public BinanceOrderBookSnapshotSource(IBinanceClient binanceClient, IBinanceOrderBookSnapshotMapper mapper)
         {
             _binanceClient = binanceClient ?? throw new ArgumentNullException(nameof(binanceClient));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

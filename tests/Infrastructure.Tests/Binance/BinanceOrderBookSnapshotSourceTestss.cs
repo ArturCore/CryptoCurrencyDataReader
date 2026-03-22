@@ -14,7 +14,7 @@ public class BinanceOrderBookSnapshotSourceTestss
     public class BinanceOrderBookSnapshotSourceTests
     {
         [Fact]
-        public async Task GetSnapshotAsync_ReturnsMappedSnapshotAndSetsSymbol()
+        public async System.Threading.Tasks.Task GetSnapshotAsync_ReturnsMappedSnapshotAndSetsSymbol()
         {
             // Arrange
             var symbol = "BTCUSDT";
@@ -38,7 +38,7 @@ public class BinanceOrderBookSnapshotSourceTestss
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(externalDto);
 
-            var mapperMock = new Mock<BinanceOrderBookSnapshotMapper>();
+            var mapperMock = new Mock<IBinanceOrderBookSnapshotMapper>();
             mapperMock
                 .Setup(m => m.Map(It.IsAny<ExternalOrderBookDto>()))
                 .Returns(mappedSnapshot);
@@ -55,8 +55,8 @@ public class BinanceOrderBookSnapshotSourceTestss
             Assert.Equal(mappedSnapshot.Bids.Count, response.Data.Bids.Count);
             Assert.Equal(mappedSnapshot.Asks.Count, response.Data.Asks.Count);
 
-            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Times.Once);
-            mapperMock.Verify(m => m.Map(It.IsAny<ExternalOrderBookDto>()), Times.Once);
+            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Moq.Times.Once);
+            mapperMock.Verify(m => m.Map(It.IsAny<ExternalOrderBookDto>()), Moq.Times.Once);
         }
     }
 }
