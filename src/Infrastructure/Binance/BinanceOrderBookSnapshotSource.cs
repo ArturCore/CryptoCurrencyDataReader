@@ -1,10 +1,7 @@
-﻿using Binance.Net.Clients;
-using Core;
-using Core.DTO;
+﻿using Core.DTO;
 using Core.Interfaces;
 using Domain;
 using Infrastructure.Binance.Interfaces;
-using Infrastructure.Binance.Mappers;
 
 namespace Infrastructure.Binance
 {
@@ -22,7 +19,7 @@ namespace Infrastructure.Binance
         public async Task<IResponse<OrderBookSnapshot>> GetSnapshotAsync(string symbol, int limit, CancellationToken cancellationToken)
         {
             var externalOrderBook = await _binanceClient.GetOrderBookAsync(symbol, limit, cancellationToken);
-            var orderBookSnapshot = _mapper.Map(externalOrderBook);
+            var orderBookSnapshot = _mapper.MapToSnapshot(externalOrderBook);
             orderBookSnapshot.Symbol = symbol;
             return Response<OrderBookSnapshot>.Success(orderBookSnapshot);
         }

@@ -7,7 +7,7 @@ namespace Infrastructure.Binance.Interfaces
 {
     public interface IBinanceOrderBookSnapshotMapper
     {
-        ExternalOrderBookDto Map(WebCallResult<BinanceOrderBook> sdkResult);
-        OrderBookSnapshot Map(ExternalOrderBookDto external);
+        ExternalOrderBookDto MapSdkResult(WebCallResult<BinanceOrderBook> sdkResult);
+        OrderBookSnapshot MapToSnapshot(ExternalOrderBookDto external);
     }
 }

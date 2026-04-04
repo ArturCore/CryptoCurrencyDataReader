@@ -15,10 +15,10 @@ namespace Infrastructure.Binance.Mappers
             _inner = inner ?? throw new ArgumentNullException(nameof(inner));
         }
 
-        public ExternalOrderBookDto Map(WebCallResult<BinanceOrderBook> sdkResult)
-            => _inner.Map(sdkResult);
+        public ExternalOrderBookDto MapSdkResult(WebCallResult<BinanceOrderBook> sdkResult)
+            => _inner.MapSdkResult(sdkResult);
 
-        public OrderBookSnapshot Map(ExternalOrderBookDto external)
-            => _inner.Map(external);
+        public OrderBookSnapshot MapToSnapshot(ExternalOrderBookDto external)
+            => _inner.MapToSnapshot(external);
     }
 }

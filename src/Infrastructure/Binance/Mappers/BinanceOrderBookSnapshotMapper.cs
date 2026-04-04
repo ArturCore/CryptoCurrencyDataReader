@@ -1,15 +1,14 @@
 ﻿using Binance.Net.Objects.Models.Spot;
 using Core.DTO;
-using Core.Interfaces;
 using CryptoExchange.Net.Objects;
 using Domain;
 using Infrastructure.Binance.Interfaces;
 
 namespace Infrastructure.Binance.Mappers
 {
-    public class BinanceOrderBookSnapshotMapper : IOrderBookMapper, IBinanceSnapshotResultMapper
+    public class BinanceOrderBookSnapshotMapper : IBinanceOrderBookSnapshotMapper
     {
-        public ExternalOrderBookDto Map(WebCallResult<BinanceOrderBook> sdkResult)
+        public ExternalOrderBookDto MapSdkResult(WebCallResult<BinanceOrderBook> sdkResult)
         {
             var bids = sdkResult.Data?.Bids
                 .Select(b => new ExternalOrderBookLevelDto { Price = b.Price, Volume = b.Quantity })
@@ -26,14 +25,14 @@ namespace Infrastructure.Binance.Mappers
             };
         }
 
-        public OrderBookSnapshot Map(ExternalOrderBookDto callResult)
+        public OrderBookSnapshot MapToSnapshot(ExternalOrderBookDto external)
         {
             return new OrderBookSnapshot
             {
-                Bids = callResult.Bids
+                Bids = external.Bids
                     .Select(b => new OrderBookLevel { Price = b.Price, Volume = b.Volume })
                     .ToList(),
-                Asks = callResult.Asks
+                Asks = external.Asks
                     .Select(a => new OrderBookLevel { Price = a.Price, Volume = a.Volume })
                     .ToList()
             };

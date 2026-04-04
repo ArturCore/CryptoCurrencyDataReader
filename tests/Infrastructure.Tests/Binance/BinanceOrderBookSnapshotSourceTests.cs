@@ -1,11 +1,8 @@
 using Core.DTO;
-using CryptoExchange.Net.Objects;
 using Domain;
 using Infrastructure.Binance;
 using Infrastructure.Binance.Interfaces;
-using Infrastructure.Binance.Mappers;
 using Moq;
-using System.Threading;
 
 namespace Infrastructure.Tests;
 
@@ -38,7 +35,7 @@ public class BinanceOrderBookSnapshotSourceTests
 
         var mapperMock = new Mock<IBinanceOrderBookSnapshotMapper>();
         mapperMock
-            .Setup(m => m.Map(It.IsAny<ExternalOrderBookDto>()))
+            .Setup(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>()))
             .Returns(mappedSnapshot);
 
         var source = new BinanceOrderBookSnapshotSource(binanceClientMock.Object, mapperMock.Object);
@@ -54,6 +51,6 @@ public class BinanceOrderBookSnapshotSourceTests
         Assert.Equal(mappedSnapshot.Asks.Count, response.Data.Asks.Count);
 
         binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Moq.Times.Once);
-        mapperMock.Verify(m => m.Map(It.IsAny<ExternalOrderBookDto>()), Moq.Times.Once);
+        mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>()), Moq.Times.Once);
     }
 }
