@@ -1,11 +1,11 @@
 ﻿using System;
 using Binance.Net.Clients;
 using Core.DTO;
-using Infrastructure.Binance.Interfaces;
+using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 
-namespace Infrastructure.Binance
+namespace Infrastructure.Common.Binance
 {
-    public class BinanceRestClientAdapter : IBinanceClient
+    public class BinanceRestClientAdapter : IBinanceSnapshotOrderBookClient
     {
         private readonly BinanceRestClient _client;
         private readonly IBinanceOrderBookSnapshotMapper _mapper;
@@ -16,7 +16,7 @@ namespace Infrastructure.Binance
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public async System.Threading.Tasks.Task<ExternalOrderBookDto> GetOrderBookAsync(string symbol, int limit, System.Threading.CancellationToken cancellationToken)
+        public async Task<ExternalOrderBookDto> GetOrderBookAsync(string symbol, int limit, CancellationToken cancellationToken)
         {
             var sdkResult = await _client.SpotApi.ExchangeData.GetOrderBookAsync(symbol, limit, cancellationToken);
             return _mapper.MapSdkResult(sdkResult);

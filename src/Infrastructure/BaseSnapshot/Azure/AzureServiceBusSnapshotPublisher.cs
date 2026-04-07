@@ -1,7 +1,7 @@
 ﻿using Core.Interfaces;
 using Domain;
 
-namespace Infrastructure.Azure
+namespace Infrastructure.SnapshotPublisher.Azure
 {
     internal class AzureServiceBusSnapshotPublisher : IOrderBookSnapshotPublisher
     {

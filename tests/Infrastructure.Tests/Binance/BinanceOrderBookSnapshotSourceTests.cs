@@ -1,12 +1,9 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Core.DTO;
+using Core.Interfaces;
 using Domain;
-using Infrastructure.Binance;
-using Infrastructure.Binance.Interfaces;
+using Infrastructure.SnapshotPublisher.Binance;
+using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 using Moq;
-using Xunit;
 
 namespace Infrastructure.Tests
 {
@@ -25,24 +22,22 @@ namespace Infrastructure.Tests
                 Asks = new[] { new ExternalOrderBookLevelDto { Price = 3m, Volume = 4m } }
             };
 
-            var mappedSnapshot = new OrderBookSnapshot
-            {
-                Symbol = "SHOULD_BE_OVERWRITTEN",
-                Bids = new[] { new OrderBookLevel { Price = 1m, Volume = 2m } },
-                Asks = new[] { new OrderBookLevel { Price = 3m, Volume = 4m } }
-            };
-
-            var binanceClientMock = new Mock<IBinanceClient>();
+            var binanceClientMock = new Mock<IBinanceSnapshotOrderBookClient>();
             binanceClientMock
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(externalDto);
 
-            var mapperMock = new Mock<IBinanceOrderBookSnapshotMapper>();
+            var mapperMock = new Mock<IOrderBookMapper>();
             mapperMock
-                .Setup(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>()))
-                .Returns(mappedSnapshot);
+                .Setup(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>(), It.IsAny<string>()))
+                .Returns<ExternalOrderBookDto, string>((ext, s) => new OrderBookSnapshot
+                {
+                    Symbol = s,
+                    Bids = new[] { new OrderBookLevel { Price = 1m, Volume = 2m } },
+                    Asks = new[] { new OrderBookLevel { Price = 3m, Volume = 4m } }
+                });
 
-            var source = new BinanceOrderBookSnapshotSource(binanceClientMock.Object, mapperMock.Object);
+            var source = new BinanceOrderBookSnapshot(binanceClientMock.Object, mapperMock.Object);
 
             // Act
             var response = await source.GetSnapshotAsync(symbol, limit, CancellationToken.None);
@@ -51,11 +46,11 @@ namespace Infrastructure.Tests
             Assert.True(response.IsSuccess);
             Assert.NotNull(response.Data);
             Assert.Equal(symbol, response.Data.Symbol);
-            Assert.Equal(mappedSnapshot.Bids.Count, response.Data.Bids.Count);
-            Assert.Equal(mappedSnapshot.Asks.Count, response.Data.Asks.Count);
+            Assert.Equal(1, response.Data.Bids.Count);
+            Assert.Equal(1, response.Data.Asks.Count);
 
-            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Moq.Times.Once);
-            mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>()), Moq.Times.Once);
+            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Times.Once);
+            mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>(), symbol), Times.Once);
         }
 
         [Fact]
@@ -64,24 +59,24 @@ namespace Infrastructure.Tests
             // Arrange
             var symbol = "BTCUSDT";
             var limit = 100;
-            var expectedException = new HttpRequestException("Network error connecting to Binance API");
+            var expectedException = new InvalidOperationException("Network error connecting to Binance API");
 
-            var binanceClientMock = new Mock<IBinanceClient>();
+            var binanceClientMock = new Mock<IBinanceSnapshotOrderBookClient>();
             binanceClientMock
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ThrowsAsync(expectedException);
 
-            var mapperMock = new Mock<IBinanceOrderBookSnapshotMapper>();
+            var mapperMock = new Mock<IOrderBookMapper>();
 
-            var source = new BinanceOrderBookSnapshotSource(binanceClientMock.Object, mapperMock.Object);
+            var source = new BinanceOrderBookSnapshot(binanceClientMock.Object, mapperMock.Object);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<HttpRequestException>(
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
                 () => source.GetSnapshotAsync(symbol, limit, CancellationToken.None));
 
             Assert.Equal(expectedException.Message, exception.Message);
-            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Moq.Times.Once);
-            mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>()), Moq.Times.Never);
+            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Times.Once);
+            mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>(), It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
@@ -99,50 +94,51 @@ namespace Infrastructure.Tests
 
             var mapperException = new InvalidOperationException("Failed to map external DTO to domain model");
 
-            var binanceClientMock = new Mock<IBinanceClient>();
+            var binanceClientMock = new Mock<IBinanceSnapshotOrderBookClient>();
             binanceClientMock
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(externalDto);
 
-            var mapperMock = new Mock<IBinanceOrderBookSnapshotMapper>();
+            var mapperMock = new Mock<IOrderBookMapper>();
             mapperMock
-                .Setup(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>()))
+                .Setup(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>(), It.IsAny<string>()))
                 .Throws(mapperException);
 
-            var source = new BinanceOrderBookSnapshotSource(binanceClientMock.Object, mapperMock.Object);
+            var source = new BinanceOrderBookSnapshot(binanceClientMock.Object, mapperMock.Object);
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(
                 () => source.GetSnapshotAsync(symbol, limit, CancellationToken.None));
 
             Assert.Equal(mapperException.Message, exception.Message);
-            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Moq.Times.Once);
-            mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>()), Moq.Times.Once);
+            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Times.Once);
+            mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>(), symbol), Times.Once);
         }
 
         [Fact]
-        public async Task GetSnapshotAsync_WhenBinanceClientReturnsNull_ExceptionPropagates()
+        public async Task GetSnapshotAsync_WhenBinanceClientReturnsNull_ReturnsFailureResponse()
         {
             // Arrange
             var symbol = "BTCUSDT";
             var limit = 100;
 
-            var binanceClientMock = new Mock<IBinanceClient>();
+            var binanceClientMock = new Mock<IBinanceSnapshotOrderBookClient>();
             binanceClientMock
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((ExternalOrderBookDto)null);
 
-            var mapperMock = new Mock<IBinanceOrderBookSnapshotMapper>();
+            var mapperMock = new Mock<IOrderBookMapper>();
 
-            var source = new BinanceOrderBookSnapshotSource(binanceClientMock.Object, mapperMock.Object);
+            var source = new BinanceOrderBookSnapshot(binanceClientMock.Object, mapperMock.Object);
 
-            // Act & Assert
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => source.GetSnapshotAsync(symbol, limit, CancellationToken.None));
+            // Act
+            var response = await source.GetSnapshotAsync(symbol, limit, CancellationToken.None);
 
-            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Moq.Times.Once);
-            // mapper is invoked with null in current implementation, so expect one call
-            mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>()), Moq.Times.Once);
+            Assert.False(response.IsSuccess);
+            Assert.Contains($"External order book for '{symbol}' is null", response.ErrorMessage ?? string.Empty);
+
+            binanceClientMock.Verify(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()), Times.Once);
+            mapperMock.Verify(m => m.MapToSnapshot(It.IsAny<ExternalOrderBookDto>(), It.IsAny<string>()), Times.Never);
         }
     }
 }

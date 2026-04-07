@@ -2,9 +2,9 @@
 using Core.DTO;
 using CryptoExchange.Net.Objects;
 using Domain;
-using Infrastructure.Binance.Interfaces;
+using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 
-namespace Infrastructure.Binance.Mappers
+namespace Infrastructure.SnapshotPublisher.Binance.Mappers
 {
     public class BinanceOrderBookSnapshotMapper : IBinanceOrderBookSnapshotMapper
     {
@@ -22,19 +22,6 @@ namespace Infrastructure.Binance.Mappers
             {
                 Bids = bids,
                 Asks = asks
-            };
-        }
-
-        public OrderBookSnapshot MapToSnapshot(ExternalOrderBookDto external)
-        {
-            return new OrderBookSnapshot
-            {
-                Bids = external.Bids
-                    .Select(b => new OrderBookLevel { Price = b.Price, Volume = b.Volume })
-                    .ToList(),
-                Asks = external.Asks
-                    .Select(a => new OrderBookLevel { Price = a.Price, Volume = a.Volume })
-                    .ToList()
             };
         }
     }

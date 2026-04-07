@@ -5,7 +5,7 @@ namespace Core.Interfaces
 {
     public interface IOrderBookMapper
     {
-        OrderBookSnapshot Map(ExternalOrderBookDto callResult);
+        OrderBookSnapshot MapToSnapshot(ExternalOrderBookDto callResult, string symbol);
     }
 
 }

@@ -1,8 +1,10 @@
 ﻿using Binance.Net.Clients;
 using Core.Interfaces;
-using Infrastructure.Binance;
-using Infrastructure.Binance.Interfaces;
-using Infrastructure.Binance.Mappers;
+using Core.Mappers;
+using Infrastructure.Common.Binance;
+using Infrastructure.SnapshotPublisher.Binance;
+using Infrastructure.SnapshotPublisher.Binance.Interfaces;
+using Infrastructure.SnapshotPublisher.Binance.Mappers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -18,10 +20,11 @@ namespace Infrastructure.Extentions
         {
             services.AddSingleton<BinanceRestClient>();
 
-            services.AddTransient<IBinanceClient, BinanceRestClientAdapter>();
+            services.AddTransient<IBinanceSnapshotOrderBookClient, BinanceRestClientAdapter>();
             services.AddSingleton<BinanceOrderBookSnapshotMapper>();
+            services.AddSingleton<IOrderBookMapper, OrderBookMapper>();
             services.AddTransient<IBinanceOrderBookSnapshotMapper, BinanceOrderBookSnapshotMapperAdapter>();
-            services.AddTransient<IOrderBookSnapshotSource, BinanceOrderBookSnapshotSource>();
+            services.AddTransient<IOrderBookBaseSnapshot, BinanceOrderBookSnapshot>();
 
             return services;
         }

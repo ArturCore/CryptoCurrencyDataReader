@@ -3,11 +3,10 @@ using Core.DTO;
 using CryptoExchange.Net.Objects;
 using Domain;
 
-namespace Infrastructure.Binance.Interfaces
+namespace Infrastructure.SnapshotPublisher.Binance.Interfaces
 {
     public interface IBinanceOrderBookSnapshotMapper
     {
         ExternalOrderBookDto MapSdkResult(WebCallResult<BinanceOrderBook> sdkResult);
-        OrderBookSnapshot MapToSnapshot(ExternalOrderBookDto external);
     }
 }

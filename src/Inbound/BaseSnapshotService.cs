@@ -1,32 +1,27 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Core.Interfaces;
+﻿using Core.Interfaces;
 using Inbound;
-using Infrastructure.Binance;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Invound
 {
-    internal class SnapshotPublisherService : BackgroundService
+    internal class BaseSnapshotService : BackgroundService
     {
         /// at the start of the project:
         /// get snapshot
         /// apply snapshot
         /// 
-        private readonly ILogger<SnapshotPublisherService> logger;
-        private readonly IOrderBookSnapshotSource orderBookSnapshotSource;
+        private readonly ILogger<BaseSnapshotService> logger;
+        private readonly IOrderBookBaseSnapshot baseOrderBookSnapshot;
         private readonly SnapshotPublisherOptions options;
 
-        public SnapshotPublisherService(
-            IOrderBookSnapshotSource orderBookSnapshotSource,
+        public BaseSnapshotService(
+            IOrderBookBaseSnapshot baseOrderBookSnapshot,
             IOptions<SnapshotPublisherOptions> options,
-            ILogger<SnapshotPublisherService> logger)
+            ILogger<BaseSnapshotService> logger)
         {
-            this.orderBookSnapshotSource = orderBookSnapshotSource ?? throw new ArgumentNullException(nameof(orderBookSnapshotSource));
+            this.baseOrderBookSnapshot = baseOrderBookSnapshot ?? throw new ArgumentNullException(nameof(baseOrderBookSnapshot));
             this.options = options?.Value ?? new SnapshotPublisherOptions { Symbols = new System.Collections.Generic.List<string>(), Limit = 0 };
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -59,7 +54,7 @@ namespace Invound
 
                     try
                     {
-                        var res = await orderBookSnapshotSource.GetSnapshotAsync(symbol, options.Limit, cancellationToken);
+                        var res = await baseOrderBookSnapshot.GetSnapshotAsync(symbol, options.Limit, cancellationToken);
 
                         if (cancellationToken.IsCancellationRequested)
                         {
