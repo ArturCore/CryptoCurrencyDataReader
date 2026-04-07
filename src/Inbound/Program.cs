@@ -19,7 +19,7 @@ await Host.CreateDefaultBuilder(args)
         services.AddSingleton<IConfiguration>(configuration);
         services.Configure<SnapshotPublisherOptions>(configuration.GetSection("SnapshotPublisherOptions"));
 
-        services.AddInfrastructure();
+        services.AddInfrastructure(configuration);
         services.AddHostedService<BaseSnapshotService>();
     })
     .Build()
