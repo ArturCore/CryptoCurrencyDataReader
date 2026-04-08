@@ -22,7 +22,7 @@ namespace Invound
             ILogger<BaseSnapshotService> logger)
         {
             this.baseOrderBookSnapshot = baseOrderBookSnapshot ?? throw new ArgumentNullException(nameof(baseOrderBookSnapshot));
-            this.options = options?.Value ?? new SnapshotPublisherOptions { Symbols = new System.Collections.Generic.List<string>(), Limit = 0 };
+            this.options = options?.Value ?? new SnapshotPublisherOptions { Symbols = new List<string>(), Limit = 0 };
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

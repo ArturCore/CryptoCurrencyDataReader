@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Configurations
 {
-    internal class AzureOptions
+    public class AzureOptions
     {
         public string ConnectionString { get; set; }
     }
