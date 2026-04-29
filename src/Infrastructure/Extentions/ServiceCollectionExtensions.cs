@@ -27,6 +27,7 @@ namespace Infrastructure.Extentions
             services.AddSingleton<IOrderBookMapper, OrderBookMapper>();
             services.AddTransient<IBinanceOrderBookSnapshotMapper, BinanceOrderBookSnapshotMapperAdapter>();
             services.AddTransient<IOrderBookBaseSnapshot, BinanceOrderBookSnapshot>();
+            services.AddSingleton<IOrderBookStore, OrderBookStore>();
 
             services.Configure<AzureOptions>(configuration.GetSection("AzureOptions"));
 

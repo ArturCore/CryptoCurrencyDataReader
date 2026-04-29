@@ -15,15 +15,18 @@ namespace Invound
         private readonly ILogger<BaseSnapshotService> logger;
         private readonly IOrderBookBaseSnapshot baseOrderBookSnapshot;
         private readonly SnapshotPublisherOptions options;
+        private readonly IOrderBookStore orderBookStore;
 
         public BaseSnapshotService(
             IOrderBookBaseSnapshot baseOrderBookSnapshot,
             IOptions<SnapshotPublisherOptions> options,
-            ILogger<BaseSnapshotService> logger)
+            ILogger<BaseSnapshotService> logger,
+            IOrderBookStore orderBookStore)
         {
             this.baseOrderBookSnapshot = baseOrderBookSnapshot ?? throw new ArgumentNullException(nameof(baseOrderBookSnapshot));
             this.options = options?.Value ?? new SnapshotPublisherOptions { Symbols = new List<string>(), Limit = 0 };
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.orderBookStore = orderBookStore;
         }
 
         protected async override Task ExecuteAsync(CancellationToken cancellationToken)
@@ -79,7 +82,7 @@ namespace Invound
                                 res.Data?.Asks?.Count ?? 0);
 
                             success = true;
-                            // TODO: apply snapshot
+                            await orderBookStore.CreateWithSnapshotAsync(res.Data, cancellationToken);
                         }
                     }
                     catch (OperationCanceledException)
