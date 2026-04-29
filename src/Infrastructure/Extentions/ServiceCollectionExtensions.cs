@@ -23,10 +23,11 @@ namespace Infrastructure.Extentions
             services.AddSingleton<BinanceRestClient>();
 
             services.AddTransient<IBinanceSnapshotOrderBookClient, BinanceRestClientAdapter>();
-            services.AddSingleton<BinanceOrderBookSnapshotMapper>();
-            services.AddSingleton<IOrderBookMapper, OrderBookMapper>();
+            services.AddTransient<BinanceOrderBookSnapshotMapper>();
+            services.AddTransient<IOrderBookMapper, OrderBookMapper>();
             services.AddTransient<IBinanceOrderBookSnapshotMapper, BinanceOrderBookSnapshotMapperAdapter>();
             services.AddTransient<IOrderBookBaseSnapshot, BinanceOrderBookSnapshot>();
+
             services.AddSingleton<IOrderBookStore, OrderBookStore>();
 
             services.Configure<AzureOptions>(configuration.GetSection("AzureOptions"));
