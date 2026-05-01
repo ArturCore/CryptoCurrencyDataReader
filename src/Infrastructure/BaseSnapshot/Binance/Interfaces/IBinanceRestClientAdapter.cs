@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.SnapshotPublisher.Binance.Interfaces
 {
-    public interface IBinanceSnapshotOrderBookClient
+    public interface IBinanceRestClientAdapter
     {
         Task<ExternalOrderBookDto> GetOrderBookAsync(string symbol, int limit, CancellationToken cancellationToken);
     }

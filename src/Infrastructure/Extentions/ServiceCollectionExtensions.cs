@@ -22,7 +22,7 @@ namespace Infrastructure.Extentions
         {
             services.AddSingleton<BinanceRestClient>();
 
-            services.AddTransient<IBinanceSnapshotOrderBookClient, BinanceRestClientAdapter>();
+            services.AddTransient<IBinanceRestClientAdapter, BinanceRestClientAdapter>();
             services.AddTransient<BinanceOrderBookSnapshotMapper>();
             services.AddTransient<IOrderBookMapper, OrderBookMapper>();
             services.AddTransient<IBinanceOrderBookSnapshotMapper, BinanceOrderBookSnapshotMapperAdapter>();

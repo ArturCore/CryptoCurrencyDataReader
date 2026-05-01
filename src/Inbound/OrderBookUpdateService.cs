@@ -2,7 +2,7 @@
 
 namespace Inbound
 {
-    internal class AppWorker : BackgroundService
+    internal class OrderBookUpdateService : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

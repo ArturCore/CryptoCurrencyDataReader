@@ -5,7 +5,7 @@ using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 
 namespace Infrastructure.Common.Binance
 {
-    public class BinanceRestClientAdapter : IBinanceSnapshotOrderBookClient
+    public class BinanceRestClientAdapter : IBinanceRestClientAdapter
     {
         private readonly BinanceRestClient _client;
         private readonly IBinanceOrderBookSnapshotMapper _mapper;

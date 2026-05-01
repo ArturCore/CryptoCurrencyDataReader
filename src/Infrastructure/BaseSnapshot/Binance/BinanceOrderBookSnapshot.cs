@@ -7,10 +7,10 @@ namespace Infrastructure.SnapshotPublisher.Binance
 {
     public class BinanceOrderBookSnapshot : IOrderBookBaseSnapshot
     {
-        private readonly IBinanceSnapshotOrderBookClient _binanceClient;
+        private readonly IBinanceRestClientAdapter _binanceClient;
         private readonly IOrderBookMapper _mapper;
 
-        public BinanceOrderBookSnapshot(IBinanceSnapshotOrderBookClient binanceClient, IOrderBookMapper mapper)
+        public BinanceOrderBookSnapshot(IBinanceRestClientAdapter binanceClient, IOrderBookMapper mapper)
         {
             _binanceClient = binanceClient ?? throw new ArgumentNullException(nameof(binanceClient));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

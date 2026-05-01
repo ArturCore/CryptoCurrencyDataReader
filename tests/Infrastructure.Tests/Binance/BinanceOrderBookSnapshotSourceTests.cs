@@ -22,7 +22,7 @@ namespace Infrastructure.Tests
                 Asks = new[] { new ExternalOrderBookLevelDto { Price = 3m, Volume = 4m } }
             };
 
-            var binanceClientMock = new Mock<IBinanceSnapshotOrderBookClient>();
+            var binanceClientMock = new Mock<IBinanceRestClientAdapter>();
             binanceClientMock
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(externalDto);
@@ -61,7 +61,7 @@ namespace Infrastructure.Tests
             var limit = 100;
             var expectedException = new InvalidOperationException("Network error connecting to Binance API");
 
-            var binanceClientMock = new Mock<IBinanceSnapshotOrderBookClient>();
+            var binanceClientMock = new Mock<IBinanceRestClientAdapter>();
             binanceClientMock
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ThrowsAsync(expectedException);
@@ -94,7 +94,7 @@ namespace Infrastructure.Tests
 
             var mapperException = new InvalidOperationException("Failed to map external DTO to domain model");
 
-            var binanceClientMock = new Mock<IBinanceSnapshotOrderBookClient>();
+            var binanceClientMock = new Mock<IBinanceRestClientAdapter>();
             binanceClientMock
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(externalDto);
@@ -122,7 +122,7 @@ namespace Infrastructure.Tests
             var symbol = "BTCUSDT";
             var limit = 100;
 
-            var binanceClientMock = new Mock<IBinanceSnapshotOrderBookClient>();
+            var binanceClientMock = new Mock<IBinanceRestClientAdapter>();
             binanceClientMock
                 .Setup(c => c.GetOrderBookAsync(symbol, limit, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((ExternalOrderBookDto)null);
