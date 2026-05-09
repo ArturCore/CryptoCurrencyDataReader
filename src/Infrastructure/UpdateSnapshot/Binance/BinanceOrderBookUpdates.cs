@@ -20,58 +20,6 @@ namespace Infrastructure.UpdateSnapshot.Binance
         }
 
         /// <summary>
-        /// Subscribes to Binance order book updates and returns the first mapped delta as an IResponse.
-        /// The method subscribes, reads a single update and then unsubscribes. Use a long‑running consumer
-        /// if you need continuous processing (subscribe and iterate subscription.Reader.ReadAllAsync()).
-        /// </summary>
-        public async Task<IResponse<OrderBookDelta>> GetOrderBookUpdatesAsync(IReadOnlyCollection<string> symbols, int updateInterval, CancellationToken cancellationToken)
-        {
-            if (symbols == null || symbols.Count == 0)
-                return Response<OrderBookDelta>.Failure("No symbols supplied.");
-
-            OrderBookSubscription subscription = null!;
-            try
-            {
-                subscription = await socketClient.SubscribeToOrderBookUpdatesRawAsync(
-                    symbols,
-                    updateInterval,
-                    capacity: 1024,
-                    cancellationToken).ConfigureAwait(false);
-
-                // Read a single update (caller can call this method repeatedly or use a dedicated consumer)
-                var dataEvent = await subscription.Reader.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-                if (dataEvent?.Data is null)
-                    return Response<OrderBookDelta>.Failure("Received empty data event from Binance.");
-
-                var delta = MapToOrderBookDelta(dataEvent);
-                return Response<OrderBookDelta>.Success(delta);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                return Response<OrderBookDelta>.Failure(ex.Message);
-            }
-            finally
-            {
-                if (subscription != null)
-                {
-                    try
-                    {
-                        await subscription.UnsubscribeAsync().ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                        // best-effort unsubscribe; ignore
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Stream order book updates continuously. Yields IResponse<OrderBookDelta> for each incoming event.
         /// The stream completes when the underlying subscription completes or when cancellation is requested.
         /// Implemented with a Channel to avoid yield-return inside try/finally (CS1626).
@@ -81,14 +29,6 @@ namespace Infrastructure.UpdateSnapshot.Binance
             int updateInterval,
             CancellationToken cancellationToken)
         {
-            if (symbols == null || symbols.Count == 0)
-            {
-                var failureChannel = Channel.CreateUnbounded<IResponse<OrderBookDelta>>(new UnboundedChannelOptions { SingleWriter = true, SingleReader = true });
-                failureChannel.Writer.TryWrite(Response<OrderBookDelta>.Failure("No symbols supplied."));
-                failureChannel.Writer.TryComplete();
-                return failureChannel.Reader.ReadAllAsync(cancellationToken);
-            }
-
             var channel = Channel.CreateUnbounded<IResponse<OrderBookDelta>>(new UnboundedChannelOptions { SingleWriter = true, SingleReader = true });
 
             // Produce on a background task. The consumer will iterate the returned IAsyncEnumerable.
@@ -153,7 +93,7 @@ namespace Infrastructure.UpdateSnapshot.Binance
             return channel.Reader.ReadAllAsync(cancellationToken);
         }
 
-        private static OrderBookDelta MapToOrderBookDelta(DataEvent<IBinanceFuturesEventOrderBook> e)
+        private static OrderBookDelta MapToOrderBookDelta(DataEvent<IBinanceEventOrderBook> e)
         {
             var payload = e.Data;
 

@@ -5,11 +5,11 @@ namespace Core.Interfaces
 {
     public interface IOrderBookUpdates
     {
-        Task<IResponse<OrderBookDelta>> GetOrderBookUpdatesAsync(
-            IReadOnlyCollection<string> symbols,
-            int updateInterval,
-            CancellationToken cancellationToken
-        );
+        //Task<IResponse<OrderBookDelta>> GetOrderBookUpdatesAsync(
+        //    IReadOnlyCollection<string> symbols,
+        //    int updateInterval,
+        //    CancellationToken cancellationToken
+        //);
 
         /// <summary>
         /// Stream order book updates as they arrive. Consumer should iterate the returned IAsyncEnumerable

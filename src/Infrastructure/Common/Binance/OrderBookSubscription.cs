@@ -12,12 +12,12 @@ namespace Infrastructure.Common.Binance
         private readonly Func<Task> _unsubscribe;
         private int _disposed;
 
-        public ChannelReader<DataEvent<IBinanceFuturesEventOrderBook>> Reader { get; }
-        internal ChannelWriter<DataEvent<IBinanceFuturesEventOrderBook>> Writer { get; }
+        public ChannelReader<DataEvent<IBinanceEventOrderBook>> Reader { get; }
+        internal ChannelWriter<DataEvent<IBinanceEventOrderBook>> Writer { get; }
 
         public OrderBookSubscription(
-            ChannelReader<DataEvent<IBinanceFuturesEventOrderBook>> reader,
-            ChannelWriter<DataEvent<IBinanceFuturesEventOrderBook>> writer,
+            ChannelReader<DataEvent<IBinanceEventOrderBook>> reader,
+            ChannelWriter<DataEvent<IBinanceEventOrderBook>> writer,
             Func<Task> unsubscribe)
         {
             Reader = reader ?? throw new ArgumentNullException(nameof(reader));

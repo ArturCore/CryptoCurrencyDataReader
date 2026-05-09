@@ -31,7 +31,7 @@ namespace Infrastructure.Common.Binance
             _logger.LogInformation("Starting subscription request for {SymbolCount} symbol(s) with updateInterval={UpdateInterval}ms.",
                 symbols.Count, updateInterval);
 
-            var channel = Channel.CreateBounded<DataEvent<IBinanceFuturesEventOrderBook>>(new BoundedChannelOptions(capacity)
+            var channel = Channel.CreateBounded<DataEvent<IBinanceEventOrderBook>>(new BoundedChannelOptions(capacity)
             {
                 SingleReader = true,
                 SingleWriter = false,
@@ -48,9 +48,11 @@ namespace Infrastructure.Common.Binance
             object subscriptionHandle = null;
             try
             {
-                var subscribeResult = await _client.CoinFuturesApi.ExchangeData
-                    .SubscribeToOrderBookUpdatesAsync(symbols, updateInterval,
-                        (DataEvent<IBinanceFuturesEventOrderBook> update) =>
+                var subscribeResult = await _client.SpotApi.ExchangeData
+                    .SubscribeToOrderBookUpdatesAsync(
+                        symbols, 
+                        updateInterval,
+                        (update) =>
                         {
                             try
                             {

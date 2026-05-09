@@ -43,7 +43,7 @@ namespace Inbound
                 {
                     await foreach (var response in _updates.StreamOrderBookUpdatesAsync(
                         symbols.ToList(),
-                        500,
+                        1000,
                         cancellationToken))
                     {
                         if (response is null)
