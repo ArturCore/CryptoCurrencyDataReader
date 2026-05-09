@@ -14,17 +14,17 @@ namespace Invound
         /// 
         private readonly ILogger<BaseSnapshotService> logger;
         private readonly IOrderBookBaseSnapshot baseOrderBookSnapshot;
-        private readonly SnapshotPublisherOptions options;
+        private readonly OrderBookOptions options;
         private readonly IOrderBookStore orderBookStore;
 
         public BaseSnapshotService(
             IOrderBookBaseSnapshot baseOrderBookSnapshot,
-            IOptions<SnapshotPublisherOptions> options,
+            IOptions<OrderBookOptions> options,
             ILogger<BaseSnapshotService> logger,
             IOrderBookStore orderBookStore)
         {
             this.baseOrderBookSnapshot = baseOrderBookSnapshot ?? throw new ArgumentNullException(nameof(baseOrderBookSnapshot));
-            this.options = options?.Value ?? new SnapshotPublisherOptions { Symbols = new List<string>(), Limit = 0 };
+            this.options = options?.Value ?? new OrderBookOptions { Symbols = new List<string>(), Limit = 0 };
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.orderBookStore = orderBookStore;
         }

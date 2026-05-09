@@ -17,10 +17,11 @@ await Host.CreateDefaultBuilder(args)
     .ConfigureServices((services) =>
     {
         services.AddSingleton<IConfiguration>(configuration);
-        services.Configure<SnapshotPublisherOptions>(configuration.GetSection("SnapshotPublisherOptions"));
+        services.Configure<OrderBookOptions>(configuration.GetSection("OrderBookOptions"));
 
         services.AddInfrastructure(configuration);
         services.AddHostedService<BaseSnapshotService>();
+        services.AddHostedService<OrderBookUpdateService>();
     })
     .Build()
     .RunAsync();
