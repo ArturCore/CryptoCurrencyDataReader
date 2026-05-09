@@ -34,16 +34,19 @@ In short, the system collects aggregated order book data from a cryptocurrency e
 
 ### 2.2. Features
 
- - **Feature 1. Order Book Data Collection & Storage**
-The system retrieves real-time order book data for selected cryptocurrency pairs from Binance, aggregates it according to predefined rules, and stores the processed market data in a database for further analysis and trading.
+ - **Feature 1. Initial Order Book Snapshot**
+The system receives the current order book snapshot from Binance and saves it into a local snapshot object that contains the current market state.
 
 ![](docs/features/Feature_1_Data_Collection_Storage.png)
 
- - **Feature 2. Strategy Execution & Trading Engine**
-The system provides access to historical aggregated market data for a selected time range, order book depth, and trading pair. This enables the development and backtesting of trading strategies in Python, as well as real-time strategy execution with automated order placement and integrated risk management mechanisms such as Stop Loss, Take Profit, and Grid Trading.
+ - **Feature 2. Real-Time Order Book Updates**
+The system connects to the Binance WebSocket stream, receives order book updates every second, and continuously updates the local snapshot object with the latest market changes.
 
- - **Feature 3. User Notifications**
-The system notifies users about changes in trading positions and order states in real time via Telegram.
+ - **Feature 3. Snapshot Backup Storage**
+The system periodically takes the current snapshot from the local object and saves it into Azure Blob Storage for backup and recovery purposes.
+
+ - **Feature 4. Market Data Aggregation**
+The system aggregates market data every minute based on the current snapshot and stores the aggregated results in Azure Database for further analysis and trading strategies.
 
 ## 3. Architecture
 
