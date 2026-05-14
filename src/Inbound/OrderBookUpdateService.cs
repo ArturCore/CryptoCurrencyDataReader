@@ -1,4 +1,5 @@
 ﻿using Core.Interfaces;
+using Domain;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -34,9 +35,8 @@ namespace Inbound
                 return;
             }
 
-            _logger.LogInformation("OrderBookUpdateService starting for {Count} symbols.", symbols.Count());
+            _logger.LogInformation($"OrderBookUpdateService starting for {symbols.Count()} symbols.");
 
-            // Subscribe once and consume the stream of updates.
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
@@ -46,57 +46,52 @@ namespace Inbound
                         1000,
                         cancellationToken))
                     {
-                        if (response is null)
-                        {
-                            _logger.LogWarning("Stream yielded null response for symbols: {Symbols}.", string.Join(',', symbols));
+                        if (!IsValidUpdate(response, symbols))
                             continue;
-                        }
-
-                        if (!response.IsSuccess || response.Data is null)
-                        {
-                            _logger.LogWarning("Failed to get update for symbols: {Symbols}: {Error}", string.Join(',', symbols), response.ErrorMessage ?? "unknown");
-                            continue;
-                        }
 
                         var delta = response.Data;
 
-                        // Dispatch by symbol — ApplyDelta is responsible for validation and ordering.
                         var applied = await _orderBookStore.TryApplyDeltaAsync(delta, cancellationToken).ConfigureAwait(false);
+
                         if (!applied)
                         {
-                            _logger.LogWarning("Delta for {Symbol} could not be applied (no book). Symbol: {Symbol}, UpdateId: {UpdateId}", delta.Symbol, delta.Symbol, delta.UpdateId);
-                            // Optionally trigger snapshot fetch or buffer delta here.
-                        }
-                        else
-                        {
-                            _logger.LogDebug("Applied delta for {Symbol}, UpdateId={UpdateId}", delta.Symbol, delta.UpdateId);
+                            _logger.LogWarning($"Delta for {delta.Symbol} could not be applied (no book). UpdateId: {delta.UpdateId}");
                         }
                     }
 
-                    // If the stream completes (subscription ended), log and retry after delay.
-                    _logger.LogWarning("Order book updates stream completed for symbols: {Symbols}. Will retry after delay.", string.Join(',', symbols));
+                    _logger.LogWarning($"Order book updates stream completed for symbols: {string.Join(',', symbols)}. Will retry after delay.");
                     await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     _logger.LogInformation("OrderBookUpdateService cancellation requested.");
-                    throw;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error while processing updates for symbols: {Symbols}. Will retry after delay.", string.Join(',', symbols));
-                    try
-                    {
-                        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        throw;
-                    }
                 }
             }
 
             _logger.LogInformation("OrderBookUpdateService stopped.");
+        }
+
+        private bool IsValidUpdate(
+            IResponse<OrderBookDelta> response,
+            IEnumerable<string>? symbols)
+        {
+            if (response is null)
+            {
+                _logger.LogWarning("Stream yielded null response for symbols: {Symbols}.", string.Join(',', symbols));
+                return false;
+            }
+
+            if (!response.IsSuccess || response.Data is null)
+            {
+                _logger.LogWarning("Failed to get update for symbols: {Symbols}: {Error}", string.Join(',', symbols), response.ErrorMessage ?? "unknown");
+                return false;
+            }
+
+            return true;
         }
     }
 }
