@@ -18,7 +18,6 @@ namespace Infrastructure
         public OrderBook? GetRawOrderBook(string symbol)
         {
             if (string.IsNullOrWhiteSpace(symbol)) throw new ArgumentException("symbol", nameof(symbol));
-
             if(_books.TryGetValue(symbol, out BookHolder? bookHolder))
             {
                 return bookHolder.Book;

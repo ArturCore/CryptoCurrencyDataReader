@@ -4,6 +4,7 @@ using Infrastructure.Common.Extentions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 HostApplicationBuilder builder = new HostApplicationBuilder();
 
@@ -15,12 +16,12 @@ await Host.CreateDefaultBuilder(args)
     .ConfigureServices((services) =>
     {
         services.AddSingleton<IConfiguration>(configuration);
-        services.Configure<OrderBookOptions>(configuration.GetSection("OrderBookOptions"));
+        services.Configure<IOptions<OrderBookOptions>>(configuration.GetSection("OrderBookOptions"));
 
         services.AddInfrastructure(configuration);
         services.AddHostedService<BaseSnapshotService>();
         services.AddHostedService<OrderBookUpdateService>();
-        services.AddHostedService<BackupSnapshotService>();
+        services.AddHostedService<BackupOrderBookService>();
     })
     .Build()
     .RunAsync();

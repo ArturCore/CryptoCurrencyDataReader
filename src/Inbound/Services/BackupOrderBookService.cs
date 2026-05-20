@@ -1,10 +1,9 @@
 ﻿using Core.Interfaces;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace Inbound.Services
 {
-    internal class BackupSnapshotService (
+    internal class BackupOrderBookService (
         IOrderBookBackup orderBookBackup)
         : BackgroundService
     {

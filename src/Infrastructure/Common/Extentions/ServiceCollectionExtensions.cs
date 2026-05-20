@@ -1,10 +1,8 @@
 ﻿using Binance.Net.Clients;
 using Core.Interfaces;
 using Core.Mappers;
-using CryptoExchange.Net.SharedApis;
 using Infrastructure.Common.Binance;
 using Infrastructure.Common.Configurations;
-using Infrastructure.SnapshotBackup;
 using Infrastructure.SnapshotPublisher.Binance;
 using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 using Infrastructure.SnapshotPublisher.Binance.Mappers;
@@ -12,11 +10,6 @@ using Infrastructure.UpdateSnapshot.Binance;
 using Infrastructure.UpdateSnapshot.Binance.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Common.Extentions
 {
@@ -33,10 +26,9 @@ namespace Infrastructure.Common.Extentions
             services.AddTransient<IBinanceOrderBookSnapshotMapper, BinanceOrderBookSnapshotMapperAdapter>();
             services.AddTransient<IOrderBookBaseSnapshot, BinanceOrderBookSnapshot>();
 
-
             services.AddTransient<IBinanceSocketClientAdapter, BinanceSocketClientAdapter>();
             services.AddTransient<IOrderBookUpdates, BinanceOrderBookUpdates>();
-            services.AddTransient<IOrderBookBackup, OrderBookBackup>();
+            services.AddTransient<IOrderBookBackup, OrderBookBackup.OrderBookBackup>();
 
             services.AddSingleton<IOrderBookStore, OrderBookStore>();
 

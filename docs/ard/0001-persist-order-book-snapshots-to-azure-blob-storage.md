@@ -35,11 +35,6 @@ The snapshot should include enough metadata to identify:
 
 - Exchange name
 - Trading pair
-- Timestamp
-- Snapshot version
-- Application version, if useful
-- Data format
-- Compression format, if used
 
 Recommended blob path format:
 
@@ -47,14 +42,13 @@ Recommended blob path format:
 order-books/
   exchange={exchange}/
     pair={base}-{quote}/
-      date={yyyy-mm-dd}/
-        snapshot-{yyyy-mm-ddTHH-mm-ssZ}.json.gz
+      latest.json.gz
 ```
 
 Example:
 
 ```text
-order-books/exchange=binance/pair=BTC-USDT/date=2026-05-10/snapshot-2026-05-10T14-25-00Z.json.gz
+order-books/exchange=binance/pair=BTC-USDT/latest.json.gz
 ```
 
 The application should recover by loading the most recent valid snapshot for each exchange and pair.
