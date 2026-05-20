@@ -1,5 +1,5 @@
 ﻿using Azure.Data.Tables;
-using Infrastructure.Configurations;
+using Infrastructure.Common.Configurations;
 using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Common.Azure

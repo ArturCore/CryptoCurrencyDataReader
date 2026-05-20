@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Infrastructure.Configurations;
+using Infrastructure.Common.Configurations;
 
 namespace Infrastructure.Common.Azure
 {

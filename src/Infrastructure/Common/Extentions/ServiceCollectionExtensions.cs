@@ -3,7 +3,7 @@ using Core.Interfaces;
 using Core.Mappers;
 using CryptoExchange.Net.SharedApis;
 using Infrastructure.Common.Binance;
-using Infrastructure.Configurations;
+using Infrastructure.Common.Configurations;
 using Infrastructure.SnapshotPublisher.Binance;
 using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 using Infrastructure.SnapshotPublisher.Binance.Mappers;
@@ -17,7 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Extentions
+namespace Infrastructure.Common.Extentions
 {
     public static class ServiceCollectionExtensions
     {

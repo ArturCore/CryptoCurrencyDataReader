@@ -1,10 +1,11 @@
 ﻿using Core.Interfaces;
 using Domain;
+using Inbound.Configurations;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Inbound
+namespace Inbound.Services
 {
     internal class OrderBookUpdateService : BackgroundService
     {

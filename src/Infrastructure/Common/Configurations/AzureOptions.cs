@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Configurations
+namespace Infrastructure.Common.Configurations
 {
     public class AzureOptions
     {

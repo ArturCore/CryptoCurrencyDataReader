@@ -1,10 +1,10 @@
 ﻿using Core.Interfaces;
-using Inbound;
+using Inbound.Configurations;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Invound
+namespace Inbound.Services
 {
     internal class BaseSnapshotService : BackgroundService
     {
