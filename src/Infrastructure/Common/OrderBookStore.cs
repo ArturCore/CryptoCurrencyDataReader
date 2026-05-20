@@ -15,11 +15,15 @@ namespace Infrastructure
             _logger = logger;
         }
 
-        public OrderBook GetOrCreate(string symbol)
+        public OrderBook? GetRawOrderBook(string symbol)
         {
             if (string.IsNullOrWhiteSpace(symbol)) throw new ArgumentException("symbol", nameof(symbol));
-            var holder = _books.GetOrAdd(symbol, s => new BookHolder(new OrderBook(s)));
-            return holder.Book;
+
+            if(_books.TryGetValue(symbol, out BookHolder? bookHolder))
+            {
+                return bookHolder.Book;
+            }
+            return null;
         }
 
         public async Task<bool> CreateWithSnapshotAsync(OrderBookSnapshot snapshot, CancellationToken cancellationToken = default)

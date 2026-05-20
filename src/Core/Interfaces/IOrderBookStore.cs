@@ -12,7 +12,7 @@ namespace Core.Interfaces
         /// <summary>
         /// Return existing OrderBook for symbol or create a new one (not initialized by snapshot).
         /// </summary>
-        OrderBook GetOrCreate(string symbol);
+        OrderBook? GetRawOrderBook(string symbol);
 
         /// <summary>
         /// Atomically create (if missing) and apply the initial snapshot. Returns true if applied by this call,

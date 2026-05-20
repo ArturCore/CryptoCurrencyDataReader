@@ -22,6 +22,7 @@ await Host.CreateDefaultBuilder(args)
         services.AddInfrastructure(configuration);
         services.AddHostedService<BaseSnapshotService>();
         services.AddHostedService<OrderBookUpdateService>();
+        services.AddHostedService<BackupSnapshotService>();
     })
     .Build()
     .RunAsync();

@@ -1,0 +1,18 @@
+﻿using Core.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Infrastructure.SnapshotBackup
+{
+    internal class OrderBookBackup() 
+        : IOrderBookBackup
+    {
+        public async Task Execute()
+        {
+            
+        }
+    }
+}

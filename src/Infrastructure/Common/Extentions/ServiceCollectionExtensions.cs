@@ -4,6 +4,7 @@ using Core.Mappers;
 using CryptoExchange.Net.SharedApis;
 using Infrastructure.Common.Binance;
 using Infrastructure.Common.Configurations;
+using Infrastructure.SnapshotBackup;
 using Infrastructure.SnapshotPublisher.Binance;
 using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 using Infrastructure.SnapshotPublisher.Binance.Mappers;
@@ -35,6 +36,7 @@ namespace Infrastructure.Common.Extentions
 
             services.AddTransient<IBinanceSocketClientAdapter, BinanceSocketClientAdapter>();
             services.AddTransient<IOrderBookUpdates, BinanceOrderBookUpdates>();
+            services.AddTransient<IOrderBookBackup, OrderBookBackup>();
 
             services.AddSingleton<IOrderBookStore, OrderBookStore>();
 
