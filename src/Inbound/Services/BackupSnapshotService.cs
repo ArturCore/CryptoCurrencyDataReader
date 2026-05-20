@@ -1,5 +1,4 @@
 ﻿using Core.Interfaces;
-using Inbound.Configurations;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
