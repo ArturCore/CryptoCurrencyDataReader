@@ -5,21 +5,20 @@ using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Infrastructure.Common.Configurations;
+using Infrastructure.OrderBookBackup.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Common.Azure
 {
-    public class AzureBlobClientAdapter
+    public class AzureBlobClientAdapter : IAzureBlobClientAdapter
     {
         private readonly BlobContainerClient blobContainerClient;
-        private readonly AzureOptions options;
 
         public AzureBlobClientAdapter(
-            AzureOptions options)
+            IOptions<AzureOptions> options)
         {
-            this.options = options ?? throw new ArgumentNullException(nameof(options));
-
-            BlobServiceClient blobServiceClient = new BlobServiceClient(options.ConnectionString);
-            blobContainerClient = blobServiceClient.GetBlobContainerClient(options.BlobContainer);
+            BlobServiceClient blobServiceClient = new BlobServiceClient(options.Value.ConnectionString);
+            blobContainerClient = blobServiceClient.GetBlobContainerClient(options.Value.BlobContainer);
         }
 
         public async Task UploadAsync(string blobName, Stream content, string contentType = null, CancellationToken cancellationToken = default)

@@ -9,11 +9,11 @@ namespace Inbound.Services
     {
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(20));
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(20));
 
-                await orderBookBackup.Execute();               
+            while (await timer.WaitForNextTickAsync(stoppingToken))
+            {
+                await orderBookBackup.Execute(stoppingToken);
             }
         }
     }

@@ -24,14 +24,14 @@ namespace Inbound.Services
             IOrderBookStore orderBookStore)
         {
             this.baseOrderBookSnapshot = baseOrderBookSnapshot ?? throw new ArgumentNullException(nameof(baseOrderBookSnapshot));
-            this.options = options?.Value ?? new OrderBookOptions { Symbols = new List<string>(), Limit = 0 };
+            this.options = options.Value;
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.orderBookStore = orderBookStore;
         }
 
         protected async override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var symbols = options?.Symbols ?? Enumerable.Empty<string>();
+            var symbols = options.Symbols ?? Enumerable.Empty<string>();
 
             if (!symbols.Any())
             {

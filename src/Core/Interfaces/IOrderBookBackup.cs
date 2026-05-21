@@ -8,6 +8,6 @@ namespace Core.Interfaces
 {
     public interface IOrderBookBackup
     {
-        Task Execute();
+        Task Execute(CancellationToken cancellationToken);
     }
 }

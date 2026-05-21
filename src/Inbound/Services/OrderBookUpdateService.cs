@@ -36,27 +36,23 @@ namespace Inbound.Services
                 return;
             }
 
-            _logger.LogInformation($"OrderBookUpdateService starting for {symbols.Count()} symbols.");
-
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    await foreach (var response in _updates.StreamOrderBookUpdatesAsync(
+                    await foreach (var singleUpdate in _updates.StreamOrderBookUpdatesAsync(
                         symbols.ToList(),
                         1000,
                         cancellationToken))
                     {
-                        if (!IsValidUpdate(response, symbols))
+                        if (!IsValidUpdate(singleUpdate, symbols))
                             continue;
 
-                        var delta = response.Data;
-
-                        var applied = await _orderBookStore.TryApplyDeltaAsync(delta, cancellationToken).ConfigureAwait(false);
+                        var applied = await _orderBookStore.TryApplyDeltaAsync(singleUpdate.Data, cancellationToken).ConfigureAwait(false);
 
                         if (!applied)
                         {
-                            _logger.LogWarning($"Delta for {delta.Symbol} could not be applied (no book). UpdateId: {delta.UpdateId}");
+                            _logger.LogWarning($"Delta for {singleUpdate.Data.Symbol} could not be applied (no book). UpdateId: {singleUpdate.Data.UpdateId}");
                         }
                     }
 

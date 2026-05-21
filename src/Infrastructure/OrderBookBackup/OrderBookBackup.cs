@@ -1,25 +1,31 @@
 ﻿using Core.Configurations;
 using Core.Interfaces;
 using Domain;
+using Infrastructure.OrderBookBackup.Interfaces;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace Infrastructure.OrderBookBackup
 {
     public class OrderBookBackup(
-        OrderBookOptions options,
-        IOrderBookStore orderBookStore) 
+        IOptions<OrderBookOptions> options,
+        IOrderBookStore orderBookStore,
+        IAzureBlobClientAdapter blobClientAdapter) 
         : IOrderBookBackup
     {
-        public async Task Execute()
+        //TODO: add cancellation
+        //TODO: add logging
+        //TODO: call Azure
+        public async Task Execute(CancellationToken cancellationToken)
         {
             try
             {
-                foreach (string symbol in options.Symbols)
+                foreach (string symbol in options.Value.Symbols)
                 {
                     OrderBook? orderBook = orderBookStore.GetRawOrderBook(symbol);
                     if (orderBook == null) continue;
 
-                    await UploadOrderBookSnapshot(orderBook);
+                    await UploadOrderBookSnapshot(orderBook, "Binance");
                 }
             }
             catch (Exception ex)
@@ -28,11 +34,13 @@ namespace Infrastructure.OrderBookBackup
             }
         }
 
-        private async Task UploadOrderBookSnapshot(OrderBook orderBook)
+        private async Task UploadOrderBookSnapshot(OrderBook orderBook, string exchangeName)
         {
             MemoryStream stream = await CreateOrderBookStream(orderBook);
 
-            //call Asure
+            string blobName = $"snapshots/exchange={exchangeName}/pair={orderBook.Symbol}/latest.json.gz";
+
+            await blobClientAdapter.UploadAsync(blobName, stream);
         }
 
         private async Task<MemoryStream> CreateOrderBookStream(OrderBook orderBook)

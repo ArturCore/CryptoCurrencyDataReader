@@ -1,5 +1,6 @@
 ﻿using Core.Configurations;
 using Inbound.Services;
+using Infrastructure.Common.Configurations;
 using Infrastructure.Common.Extentions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,8 @@ await Host.CreateDefaultBuilder(args)
     .ConfigureServices((services) =>
     {
         services.AddSingleton<IConfiguration>(configuration);
-        services.Configure<IOptions<OrderBookOptions>>(configuration.GetSection("OrderBookOptions"));
+        services.Configure<OrderBookOptions>(configuration.GetSection("OrderBookOptions"));
+        services.Configure<AzureOptions>(configuration.GetSection("AzureOptions"));
 
         services.AddInfrastructure(configuration);
         services.AddHostedService<BaseSnapshotService>();
