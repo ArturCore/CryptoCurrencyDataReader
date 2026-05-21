@@ -14,9 +14,8 @@ namespace Infrastructure.OrderBookBackup
         IAzureBlobClientAdapter blobClientAdapter) 
         : IOrderBookBackup
     {
-        //TODO: add cancellation
         //TODO: add logging
-        //TODO: call Azure
+        //TODO: add error handling
         public async Task Execute(CancellationToken cancellationToken)
         {
             try
@@ -26,7 +25,7 @@ namespace Infrastructure.OrderBookBackup
                     OrderBookSnapshot? orderBook = orderBookStore.TryGetSnapshot(symbol);
                     if (orderBook == null) continue;
 
-                    await UploadOrderBookSnapshot(orderBook, "Binance");
+                    await UploadOrderBookSnapshot(orderBook, "Binance", cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -35,13 +34,13 @@ namespace Infrastructure.OrderBookBackup
             }
         }
 
-        private async Task UploadOrderBookSnapshot(OrderBookSnapshot orderBook, string exchangeName)
+        private async Task UploadOrderBookSnapshot(OrderBookSnapshot orderBook, string exchangeName, CancellationToken cancellationToken)
         {
             MemoryStream stream = await CreateOrderBookStream(orderBook);
 
             string blobName = $"snapshots/exchange={exchangeName}/pair={orderBook.Symbol}/latest.json";
 
-            await blobClientAdapter.UploadAsync(blobName, stream, AccessTier.Cold);
+            await blobClientAdapter.UploadAsync(blobName, stream, AccessTier.Cold, cancellationToken);
         }
 
         private async Task<MemoryStream> CreateOrderBookStream(OrderBookSnapshot orderBook)

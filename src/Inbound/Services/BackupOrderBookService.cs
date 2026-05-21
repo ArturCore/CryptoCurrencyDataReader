@@ -9,7 +9,7 @@ namespace Inbound.Services
     {
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(20));
+            using var timer = new PeriodicTimer(TimeSpan.FromMinutes(5));
 
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {

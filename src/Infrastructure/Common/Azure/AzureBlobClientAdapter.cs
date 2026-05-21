@@ -21,7 +21,7 @@ namespace Infrastructure.Common.Azure
             blobContainerClient = blobServiceClient.GetBlobContainerClient(options.Value.BlobContainer);
         }
 
-        public async Task UploadAsync(string blobName, Stream content, AccessTier? accessTier = null, string contentType = null, CancellationToken cancellationToken = default)
+        public async Task UploadAsync(string blobName, Stream content, AccessTier? accessTier = null, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(blobName)) throw new ArgumentException("blobName must be provided", nameof(blobName));
             if (content is null) throw new ArgumentNullException(nameof(content));
@@ -31,10 +31,6 @@ namespace Infrastructure.Common.Azure
             var blobClient = blobContainerClient.GetBlobClient(blobName);
 
             var headers = new BlobHttpHeaders();
-            if (!string.IsNullOrWhiteSpace(contentType))
-            {
-                headers.ContentType = contentType;
-            }
 
             await blobClient.UploadAsync(
                 content, 

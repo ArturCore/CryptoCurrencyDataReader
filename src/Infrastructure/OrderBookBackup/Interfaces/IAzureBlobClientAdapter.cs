@@ -13,7 +13,6 @@ namespace Infrastructure.OrderBookBackup.Interfaces
             string blobName,
             Stream content,
             AccessTier? accessTier = null,
-            string contentType = null,
             CancellationToken cancellationToken = default);
     }
 }
