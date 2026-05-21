@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Azure.Storage.Blobs.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace Infrastructure.OrderBookBackup.Interfaces
         Task UploadAsync(
             string blobName,
             Stream content,
+            AccessTier? accessTier = null,
             string contentType = null,
             CancellationToken cancellationToken = default);
     }

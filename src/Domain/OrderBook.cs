@@ -3,8 +3,8 @@
     public class OrderBook
     {
         public string Symbol { get; }
-        private readonly Dictionary<decimal, decimal> _bids = new();
-        private readonly Dictionary<decimal, decimal> _asks = new();
+        public readonly Dictionary<decimal, decimal> _bids = new();
+        public readonly Dictionary<decimal, decimal> _asks = new();
 
         public OrderBook(string symbol)
         {

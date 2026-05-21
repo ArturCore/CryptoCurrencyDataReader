@@ -1,4 +1,5 @@
-﻿using Core.Configurations;
+﻿using Azure.Storage.Blobs.Models;
+using Core.Configurations;
 using Core.Interfaces;
 using Domain;
 using Infrastructure.OrderBookBackup.Interfaces;
@@ -22,7 +23,7 @@ namespace Infrastructure.OrderBookBackup
             {
                 foreach (string symbol in options.Value.Symbols)
                 {
-                    OrderBook? orderBook = orderBookStore.GetRawOrderBook(symbol);
+                    OrderBookSnapshot? orderBook = orderBookStore.TryGetSnapshot(symbol);
                     if (orderBook == null) continue;
 
                     await UploadOrderBookSnapshot(orderBook, "Binance");
@@ -34,16 +35,16 @@ namespace Infrastructure.OrderBookBackup
             }
         }
 
-        private async Task UploadOrderBookSnapshot(OrderBook orderBook, string exchangeName)
+        private async Task UploadOrderBookSnapshot(OrderBookSnapshot orderBook, string exchangeName)
         {
             MemoryStream stream = await CreateOrderBookStream(orderBook);
 
-            string blobName = $"snapshots/exchange={exchangeName}/pair={orderBook.Symbol}/latest.json.gz";
+            string blobName = $"snapshots/exchange={exchangeName}/pair={orderBook.Symbol}/latest.json";
 
-            await blobClientAdapter.UploadAsync(blobName, stream);
+            await blobClientAdapter.UploadAsync(blobName, stream, AccessTier.Cold);
         }
 
-        private async Task<MemoryStream> CreateOrderBookStream(OrderBook orderBook)
+        private async Task<MemoryStream> CreateOrderBookStream(OrderBookSnapshot orderBook)
         {
             var stream = new MemoryStream();
 
