@@ -3,6 +3,7 @@ using Core.Configurations;
 using Core.Interfaces;
 using Domain;
 using Infrastructure.OrderBookBackup.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -11,26 +12,34 @@ namespace Infrastructure.OrderBookBackup
     public class OrderBookBackup(
         IOptions<OrderBookOptions> options,
         IOrderBookStore orderBookStore,
-        IAzureBlobClientAdapter blobClientAdapter) 
+        IAzureBlobClientAdapter blobClientAdapter,
+        ILogger _logger) 
         : IOrderBookBackup
     {
-        //TODO: add logging
-        //TODO: add error handling
         public async Task Execute(CancellationToken cancellationToken)
         {
-            try
+            _logger.LogInformation($"Order book backup started. Symbols count: {options.Value.Symbols.Count}");
+
+            foreach (string symbol in options.Value.Symbols)
             {
-                foreach (string symbol in options.Value.Symbols)
+                try
                 {
                     OrderBookSnapshot? orderBook = orderBookStore.TryGetSnapshot(symbol);
                     if (orderBook == null) continue;
 
                     await UploadOrderBookSnapshot(orderBook, "Binance", cancellationToken);
+
+                    _logger.LogInformation($"Order book backup for symbol {options.Value.Symbols.Count} succeed");
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    _logger.LogInformation("Order book backup was cancelled");
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Order book backup failed for {symbol}");
+                }
             }
         }
 
@@ -40,14 +49,20 @@ namespace Infrastructure.OrderBookBackup
 
             string blobName = $"snapshots/exchange={exchangeName}/pair={orderBook.Symbol}/latest.json";
 
-            await blobClientAdapter.UploadAsync(blobName, stream, AccessTier.Cold, cancellationToken);
+            await blobClientAdapter.UploadAsync(
+                blobName, 
+                stream, 
+                AccessTier.Cold, 
+                cancellationToken);
         }
 
         private async Task<MemoryStream> CreateOrderBookStream(OrderBookSnapshot orderBook)
         {
             var stream = new MemoryStream();
 
-            await JsonSerializer.SerializeAsync(stream, orderBook);
+            await JsonSerializer.SerializeAsync(
+                stream, 
+                orderBook);
 
             stream.Position = 0;
 

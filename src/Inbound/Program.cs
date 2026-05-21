@@ -17,6 +17,7 @@ await Host.CreateDefaultBuilder(args)
     .ConfigureServices((services) =>
     {
         services.AddSingleton<IConfiguration>(configuration);
+        //TODO: stop service if no symbols
         services.Configure<OrderBookOptions>(configuration.GetSection("OrderBookOptions"));
         services.Configure<AzureOptions>(configuration.GetSection("AzureOptions"));
 
