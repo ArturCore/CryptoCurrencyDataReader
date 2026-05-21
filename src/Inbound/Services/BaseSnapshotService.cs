@@ -8,10 +8,6 @@ namespace Inbound.Services
 {
     internal class BaseSnapshotService : BackgroundService
     {
-        /// at the start of the project:
-        /// get snapshot
-        /// apply snapshot
-        /// 
         private readonly ILogger<BaseSnapshotService> logger;
         private readonly IOrderBookBaseSnapshot baseOrderBookSnapshot;
         private readonly OrderBookOptions options;

@@ -9,6 +9,8 @@ namespace Inbound.Services
         ILogger _logger)
         : BackgroundService
     {
+        private const int periodicExecutionBackupInMinutes = 5;
+
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Backup OrderBook Service started");
@@ -17,7 +19,7 @@ namespace Inbound.Services
             {
                 try
                 {
-                    using var timer = new PeriodicTimer(TimeSpan.FromMinutes(5));
+                    using var timer = new PeriodicTimer(TimeSpan.FromMinutes(periodicExecutionBackupInMinutes));
 
                     while (await timer.WaitForNextTickAsync(stoppingToken))
                     {
