@@ -10,7 +10,7 @@ namespace Inbound.Workers
     {
         protected async override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Backup OrderBook Service started");
+            _logger.LogInformation($"{nameof(AggregationOrderBookWorker)} started");
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -22,12 +22,12 @@ namespace Inbound.Workers
                 }
                 catch (OperationCanceledException ex)
                 {
-                    _logger.LogInformation(ex, "Backup OrderBook Service cancelled");
+                    _logger.LogInformation(ex, $"{nameof(AggregationOrderBookWorker)} cancelled");
                     break;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Backup OrderBook Service iteration failed");
+                    _logger.LogError(ex, $"{nameof(AggregationOrderBookWorker)} iteration failed");
                 }
             }
         }

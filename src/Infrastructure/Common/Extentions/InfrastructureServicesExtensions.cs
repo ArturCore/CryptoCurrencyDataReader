@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.Common.Extentions
 {
-    public static class ServiceCollectionExtensions
+    public static class InfrastructureServicesExtensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
@@ -26,7 +26,7 @@ namespace Infrastructure.Common.Extentions
             services.AddTransient<BinanceOrderBookSnapshotMapper>();
             services.AddTransient<IOrderBookMapper, OrderBookMapper>();
             services.AddTransient<IBinanceOrderBookSnapshotMapper, BinanceOrderBookSnapshotMapperAdapter>();
-            services.AddTransient<IOrderBookBaseSnapshot, BinanceOrderBookSnapshot>();
+            services.AddTransient<IBaseOrderBookSource, BinanceOrderBookSnapshot>();
 
             services.AddTransient<IBinanceSocketClientAdapter, BinanceSocketClientAdapter>();
             services.AddTransient<IOrderBookUpdates, BinanceOrderBookUpdates>();

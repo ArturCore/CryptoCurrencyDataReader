@@ -1,4 +1,5 @@
 ﻿using Core.Configurations;
+using Core.Extentions;
 using Inbound.Workers;
 using Infrastructure.Common.Configurations;
 using Infrastructure.Common.Extentions;
@@ -21,6 +22,7 @@ await Host.CreateDefaultBuilder(args)
         services.Configure<AzureOptions>(configuration.GetSection("AzureOptions"));
 
         services.AddInfrastructure(configuration);
+        services.AddCoreServices(configuration);
 
         services.AddHostedService<BaseSnapshotWorker>();
         services.AddHostedService<OrderBookUpdateWorker>();
