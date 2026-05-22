@@ -1,31 +1,19 @@
-﻿using Core.Interfaces;
-using Microsoft.Extensions.Hosting;
+﻿using Core.Configurations;
+using Core.Interfaces;
+using Domain;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace Inbound.Workers
+namespace Core.Services
 {
-    internal class OrderBookUpdateWorker (
-        ILogger<OrderBookUpdateWorker> _logger,
-        IOrderBookUpdates orderBookUpdates)
-        : BackgroundService
+    internal class OrderBookUpdatesService(
+        ILogger<OrderBookUpdatesService> _logger)
+        : IOrderBookUpdates
     {
-        protected async override Task ExecuteAsync(CancellationToken cancellationToken)
+        public async Task RunOrderBookUpdates(CancellationToken cancellationToken)
         {
-            try
-            {
-                _logger.LogInformation("{ServiceName} started", nameof(OrderBookUpdateWorker));
-
-                await orderBookUpdates.RunOrderBookUpdates(cancellationToken);
-            }
-            catch (OperationCanceledException ex)
-            {
-                _logger.LogInformation("{ServiceName} cancelled", nameof(OrderBookUpdateWorker));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "{ServiceName} thrown an unexpected error", nameof(OrderBookUpdateWorker));
-            }
-
+            
+        }
         //private readonly ILogger<OrderBookUpdateWorker> _logger;
         //private readonly IOrderBookUpdates _updates;
         //private readonly IOrderBookStore _orderBookStore;
@@ -106,6 +94,6 @@ namespace Inbound.Workers
         //    }
 
         //    return true;
-        //}        
+        //}
     }
 }

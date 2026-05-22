@@ -29,7 +29,7 @@ namespace Infrastructure.Common.Extentions
             services.AddTransient<IBaseOrderBookSource, BinanceOrderBookSnapshot>();
 
             services.AddTransient<IBinanceSocketClientAdapter, BinanceSocketClientAdapter>();
-            services.AddTransient<IOrderBookUpdates, BinanceOrderBookUpdates>();
+            services.AddTransient<IOrderBookUpdatesSource, BinanceOrderBookUpdates>();
 
             services.AddTransient<IOrderBookBackup, OrderBookBackup.OrderBookBackup>();
             services.AddTransient<IAzureBlobClientAdapter, AzureBlobClientAdapter>();

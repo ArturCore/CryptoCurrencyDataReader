@@ -9,7 +9,7 @@ using System.Threading.Channels;
 
 namespace Infrastructure.UpdateSnapshot.Binance
 {
-    public class BinanceOrderBookUpdates : IOrderBookUpdates
+    public class BinanceOrderBookUpdates : IOrderBookUpdatesSource
     {
         private readonly IBinanceSocketClientAdapter socketClient;
 

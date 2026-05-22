@@ -10,6 +10,7 @@ namespace Core.Extentions
         public static IServiceCollection AddCoreServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<IOrderBookBaseSnapshot, OrderBookBaseSnapshotService>();
+            services.AddTransient<IOrderBookUpdates, OrderBookUpdatesService>();
 
             return services;
         }
