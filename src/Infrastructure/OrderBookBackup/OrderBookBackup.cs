@@ -13,7 +13,7 @@ namespace Infrastructure.OrderBookBackup
         IOptions<OrderBookOptions> options,
         IOrderBookStore orderBookStore,
         IAzureBlobClientAdapter blobClientAdapter,
-        ILogger _logger) 
+        ILogger<OrderBookBackup> _logger) 
         : IOrderBookBackup
     {
         public async Task Execute(CancellationToken cancellationToken)

@@ -4,19 +4,19 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Inbound.Services
+namespace Inbound.Workers
 {
-    internal class BaseSnapshotService : BackgroundService
+    internal class BaseSnapshotWorker : BackgroundService
     {
-        private readonly ILogger<BaseSnapshotService> logger;
+        private readonly ILogger<BaseSnapshotWorker> logger;
         private readonly IOrderBookBaseSnapshot baseOrderBookSnapshot;
         private readonly OrderBookOptions options;
         private readonly IOrderBookStore orderBookStore;
 
-        public BaseSnapshotService(
+        public BaseSnapshotWorker(
             IOrderBookBaseSnapshot baseOrderBookSnapshot,
             IOptions<OrderBookOptions> options,
-            ILogger<BaseSnapshotService> logger,
+            ILogger<BaseSnapshotWorker> logger,
             IOrderBookStore orderBookStore)
         {
             this.baseOrderBookSnapshot = baseOrderBookSnapshot ?? throw new ArgumentNullException(nameof(baseOrderBookSnapshot));

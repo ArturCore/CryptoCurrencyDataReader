@@ -2,11 +2,11 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Inbound.Services
+namespace Inbound.Workers
 {
-    internal class BackupOrderBookService (
+    internal class BackupOrderBookWorker (
         IOrderBookBackup orderBookBackup,
-        ILogger _logger)
+        ILogger<BackupOrderBookWorker> _logger)
         : BackgroundService
     {
         private const int periodicExecutionBackupInMinutes = 5;

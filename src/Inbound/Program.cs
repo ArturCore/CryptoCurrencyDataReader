@@ -1,11 +1,10 @@
 ﻿using Core.Configurations;
-using Inbound.Services;
+using Inbound.Workers;
 using Infrastructure.Common.Configurations;
 using Infrastructure.Common.Extentions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 HostApplicationBuilder builder = new HostApplicationBuilder();
 
@@ -22,9 +21,11 @@ await Host.CreateDefaultBuilder(args)
         services.Configure<AzureOptions>(configuration.GetSection("AzureOptions"));
 
         services.AddInfrastructure(configuration);
-        services.AddHostedService<BaseSnapshotService>();
-        services.AddHostedService<OrderBookUpdateService>();
-        services.AddHostedService<BackupOrderBookService>();
+
+        services.AddHostedService<BaseSnapshotWorker>();
+        services.AddHostedService<OrderBookUpdateWorker>();
+        services.AddHostedService<BackupOrderBookWorker>();
+        services.AddHostedService<AggregationOrderBookWorker>();
     })
     .Build()
     .RunAsync();

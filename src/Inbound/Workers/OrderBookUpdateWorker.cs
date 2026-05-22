@@ -5,20 +5,20 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Inbound.Services
+namespace Inbound.Workers
 {
-    internal class OrderBookUpdateService : BackgroundService
+    internal class OrderBookUpdateWorker : BackgroundService
     {
-        private readonly ILogger<OrderBookUpdateService> _logger;
+        private readonly ILogger<OrderBookUpdateWorker> _logger;
         private readonly IOrderBookUpdates _updates;
         private readonly IOrderBookStore _orderBookStore;
         private readonly OrderBookOptions _options;
 
-        public OrderBookUpdateService(
+        public OrderBookUpdateWorker(
             IOrderBookUpdates updates,
             IOrderBookStore orderBookStore,
             IOptions<OrderBookOptions> options,
-            ILogger<OrderBookUpdateService> logger)
+            ILogger<OrderBookUpdateWorker> logger)
         {
             _updates = updates ?? throw new ArgumentNullException(nameof(updates));
             _orderBookStore = orderBookStore ?? throw new ArgumentNullException(nameof(orderBookStore));
