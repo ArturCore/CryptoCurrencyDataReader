@@ -5,10 +5,8 @@ using Infrastructure.Common.Azure;
 using Infrastructure.Common.Binance;
 using Infrastructure.Common.Binance.Mappers;
 using Infrastructure.Common.Configurations;
-using Infrastructure.OrderBookBackup.Interfaces;
 using Infrastructure.SnapshotPublisher.Binance;
 using Infrastructure.SnapshotPublisher.Binance.Interfaces;
-using Infrastructure.UpdateSnapshot.Binance;
 using Infrastructure.UpdateSnapshot.Binance.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,8 +30,7 @@ namespace Infrastructure.Common.Extentions
 
             services.AddTransient<IOrderBookUpdatesSource, BinanceSocketClientAdapter>();
 
-            services.AddTransient<IOrderBookBackup, OrderBookBackup.OrderBookBackup>();
-            services.AddTransient<IAzureBlobClientAdapter, AzureBlobClientAdapter>();
+            services.AddTransient<IBackupClient, AzureBlobClientAdapter>();
 
             services.AddSingleton<IOrderBookStore, OrderBookStore>();
 

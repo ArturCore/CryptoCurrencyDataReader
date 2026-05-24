@@ -1,18 +1,16 @@
-﻿using Azure.Storage.Blobs.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.OrderBookBackup.Interfaces
+namespace Core.Interfaces
 {
-    public interface IAzureBlobClientAdapter
+    public interface IBackupClient
     {
         Task UploadAsync(
-            string blobName,
+            string fileName,
             Stream content,
-            AccessTier? accessTier = null,
             CancellationToken cancellationToken = default);
     }
 }

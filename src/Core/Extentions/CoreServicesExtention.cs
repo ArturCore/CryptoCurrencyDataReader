@@ -11,6 +11,7 @@ namespace Core.Extentions
         {
             services.AddTransient<IOrderBookBaseSnapshot, OrderBookBaseSnapshotService>();
             services.AddTransient<IOrderBookUpdates, OrderBookUpdatesService>();
+            services.AddTransient<IOrderBookBackup, OrderBookBackupService>();
 
             return services;
         }

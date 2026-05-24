@@ -9,7 +9,7 @@ namespace Inbound.Workers
         ILogger<BackupOrderBookWorker> _logger)
         : BackgroundService
     {
-        private const int periodicExecutionBackupInMinutes = 5;
+        private const int periodicExecutionBackupInMinutes = 1;
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {

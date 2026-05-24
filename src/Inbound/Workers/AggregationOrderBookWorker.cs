@@ -1,5 +1,4 @@
-﻿using Infrastructure.OrderBookBackup;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Inbound.Workers

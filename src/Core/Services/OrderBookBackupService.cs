@@ -1,19 +1,18 @@
-﻿using Azure.Storage.Blobs.Models;
-using Core.Configurations;
+﻿using Core.Configurations;
 using Core.Interfaces;
 using Domain;
-using Infrastructure.OrderBookBackup.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace Infrastructure.OrderBookBackup
+namespace Core.Services
 {
-    public class OrderBookBackup(
+    internal class OrderBookBackupService
+    (
         IOptions<OrderBookOptions> options,
         IOrderBookStore orderBookStore,
-        IAzureBlobClientAdapter blobClientAdapter,
-        ILogger<OrderBookBackup> _logger) 
+        IBackupClient backupClient,
+        ILogger<OrderBookBackupService> _logger)
         : IOrderBookBackup
     {
         public async Task Execute(CancellationToken cancellationToken)
@@ -49,10 +48,9 @@ namespace Infrastructure.OrderBookBackup
 
             string blobName = $"snapshots/exchange={exchangeName}/pair={orderBook.Symbol}/latest.json";
 
-            await blobClientAdapter.UploadAsync(
-                blobName, 
-                stream, 
-                AccessTier.Cold, 
+            await backupClient.UploadAsync(
+                blobName,
+                stream,
                 cancellationToken);
         }
 
@@ -61,7 +59,7 @@ namespace Infrastructure.OrderBookBackup
             var stream = new MemoryStream();
 
             await JsonSerializer.SerializeAsync(
-                stream, 
+                stream,
                 orderBook);
 
             stream.Position = 0;
