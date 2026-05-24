@@ -1,12 +1,11 @@
 ﻿using Binance.Net.Objects.Models.Spot;
 using Core.DTO;
 using CryptoExchange.Net.Objects;
-using Domain;
 using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 
-namespace Infrastructure.SnapshotPublisher.Binance.Mappers
+namespace Infrastructure.Common.Binance.Mappers
 {
-    public class BinanceOrderBookSnapshotMapper : IBinanceOrderBookSnapshotMapper
+    public class BinanceOrderBookSnapshotMapper
     {
         public ExternalOrderBookDto MapSdkResult(WebCallResult<BinanceOrderBook> sdkResult)
         {
@@ -20,6 +19,7 @@ namespace Infrastructure.SnapshotPublisher.Binance.Mappers
 
             return new ExternalOrderBookDto
             {
+                Symbol = sdkResult.Data?.Symbol,
                 Bids = bids,
                 Asks = asks
             };

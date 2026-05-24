@@ -1,12 +1,14 @@
-﻿using Domain;
+﻿using Core.DTO;
+using Domain;
 
 namespace Core.Interfaces
 {
     public interface IOrderBookUpdatesSource
     {
-        IAsyncEnumerable<IResponse<OrderBookDelta>> StreamOrderBookUpdatesAsync(
+        Task SubscriteToStreamOrderBookUpdatesAsync(
             IReadOnlyCollection<string> symbols,
             int updateInterval,
+            Func<ExternalOrderBookEventDto, CancellationToken, Task> onUpdateAsync,
             CancellationToken cancellationToken);
     }
 }

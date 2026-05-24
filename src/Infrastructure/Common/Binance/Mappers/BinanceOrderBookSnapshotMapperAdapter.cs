@@ -1,14 +1,13 @@
 ﻿using Binance.Net.Objects.Models.Spot;
 using Core.DTO;
-using Core.Interfaces;
 using Core.Mappers;
 using CryptoExchange.Net.Objects;
 using Domain;
 using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 
-namespace Infrastructure.SnapshotPublisher.Binance.Mappers
+namespace Infrastructure.Common.Binance.Mappers
 {
-    public class BinanceOrderBookSnapshotMapperAdapter : IBinanceOrderBookSnapshotMapper, IOrderBookMapper
+    public class BinanceOrderBookSnapshotMapperAdapter : IBinanceOrderBookSnapshotMapper
     {
         private readonly BinanceOrderBookSnapshotMapper _inner;
         private readonly OrderBookMapper _orderBookMapper;
@@ -21,7 +20,7 @@ namespace Infrastructure.SnapshotPublisher.Binance.Mappers
         public ExternalOrderBookDto MapSdkResult(WebCallResult<BinanceOrderBook> sdkResult)
             => _inner.MapSdkResult(sdkResult);
 
-        public OrderBookSnapshot MapToSnapshot(ExternalOrderBookDto external, string symbol)
-            => _orderBookMapper.MapToSnapshot(external, symbol);
+        public OrderBookSnapshot MapToSnapshot(ExternalOrderBookDto external)
+            => _orderBookMapper.MapToSnapshot(external);
     }
 }

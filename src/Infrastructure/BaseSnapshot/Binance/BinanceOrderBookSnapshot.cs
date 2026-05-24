@@ -24,7 +24,7 @@ namespace Infrastructure.SnapshotPublisher.Binance
                 return Response<OrderBookSnapshot>.Failure($"External order book for '{symbol}' is null.");
             }
 
-            var orderBookSnapshot = _mapper.MapToSnapshot(externalOrderBook, symbol);
+            var orderBookSnapshot = _mapper.MapToSnapshot(externalOrderBook);
             return Response<OrderBookSnapshot>.Success(orderBookSnapshot);
         }
     }
