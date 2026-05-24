@@ -27,5 +27,19 @@ namespace Infrastructure.SnapshotPublisher.Binance
             var orderBookSnapshot = _mapper.MapToSnapshot(externalOrderBook);
             return Response<OrderBookSnapshot>.Success(orderBookSnapshot);
         }
+
+        public async Task<IResponse<decimal>> GetSymbolPrice(string symbol, CancellationToken cancellationToken)
+        {
+            try
+            {
+                decimal price = await _binanceClient.GetCurrentPrice(symbol, cancellationToken);
+
+                return Response<decimal>.Success(price);
+            }
+            catch (Exception ex)
+            {
+                return Response<decimal>.Failure($"Unexpected error while trying to get symbol price");
+            }
+        }
     }
 }

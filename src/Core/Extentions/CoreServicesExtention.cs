@@ -12,6 +12,7 @@ namespace Core.Extentions
             services.AddTransient<IOrderBookBaseSnapshot, OrderBookBaseSnapshotService>();
             services.AddTransient<IOrderBookUpdates, OrderBookUpdatesService>();
             services.AddTransient<IOrderBookBackup, OrderBookBackupService>();
+            services.AddTransient<IOrderBookAggregation, OrderBookAggregationService>();
 
             return services;
         }

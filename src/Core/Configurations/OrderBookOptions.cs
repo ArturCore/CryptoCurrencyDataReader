@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain;
 
 namespace Core.Configurations
 {
@@ -11,5 +7,6 @@ namespace Core.Configurations
         public int Limit { get; set; }
         required public List<string> Symbols { get; set; }
         required public int UpdateInterval { get; set; }
+        required public List<int> AggregationLevels { get; set; }
     }
 }

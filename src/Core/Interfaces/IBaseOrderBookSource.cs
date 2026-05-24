@@ -13,5 +13,8 @@ namespace Core.Interfaces
             string symbol,
             int limit,
             CancellationToken cancellationToken);
+        Task<IResponse<decimal>> GetSymbolPrice(
+            string symbol,
+            CancellationToken cancellationToken);
     }
 }

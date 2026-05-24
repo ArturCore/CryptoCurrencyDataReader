@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Core.Interfaces;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Inbound.Workers
 {
     internal class AggregationOrderBookWorker(
-        ILogger<AggregationOrderBookWorker> _logger)
+        ILogger<AggregationOrderBookWorker> _logger,
+        IOrderBookAggregation orderBookAggregation)
         : BackgroundService
     {
         protected async override Task ExecuteAsync(CancellationToken cancellationToken)
@@ -13,11 +15,11 @@ namespace Inbound.Workers
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                Task.Delay(DelayUntilNextMinute(), cancellationToken);
+                await Task.Delay(DelayUntilNextMinute(), cancellationToken);
 
                 try
                 {
-                     //await orderBookBackup.Execute(cancellationToken);                    
+                     await orderBookAggregation.Execute(cancellationToken);                    
                 }
                 catch (OperationCanceledException ex)
                 {
