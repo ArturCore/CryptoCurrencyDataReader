@@ -11,7 +11,6 @@ namespace Infrastructure.AggregationSnapshot.Azure
     public class AggregatedOrderBookEntity : ITableEntity
     {
         public string PartitionKey { get; set; }
-        // depth
         public string RowKey { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
         public int Depth { get; set; }
