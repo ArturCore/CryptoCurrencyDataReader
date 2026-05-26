@@ -31,6 +31,7 @@ namespace Infrastructure.Common.Extentions
             services.AddTransient<IOrderBookUpdatesSource, BinanceSocketClientAdapter>();
 
             services.AddTransient<IBackupClient, AzureBlobClientAdapter>();
+            services.AddTransient<IAggregatedOrderBookStorage, AzureTableClientAdapter>();
 
             services.AddSingleton<IOrderBookStore, OrderBookStore>();
 

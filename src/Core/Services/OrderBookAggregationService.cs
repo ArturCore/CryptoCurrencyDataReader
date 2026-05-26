@@ -3,6 +3,7 @@ using Core.Interfaces;
 using Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Threading;
 
 namespace Core.Services
 {
@@ -10,7 +11,8 @@ namespace Core.Services
         ILogger<OrderBookAggregationService> logger,
         IOptions<OrderBookOptions> options,
         IOrderBookStore orderBookStore,
-        IBaseOrderBookSource orderBookSource)
+        IBaseOrderBookSource orderBookSource,
+        IAggregatedOrderBookStorage aggregatedOrderBookStorage)
         : IOrderBookAggregation
     {
         public async Task Execute(CancellationToken cancellationToken)
@@ -32,17 +34,19 @@ namespace Core.Services
                     continue;
                 }
 
-                await ProcessSnapshot(symbol, snapshot, currentPairPrice.Data);
+                await ProcessSnapshot(symbol, snapshot, currentPairPrice.Data, cancellationToken);
+
+                logger.LogInformation("Aggregation for symbol {Symbol} succeed", symbol);
             }
         }
 
-        private async Task ProcessSnapshot(string symbol, OrderBookSnapshot snapshot, decimal currentPairPrice)
+        private async Task ProcessSnapshot(string symbol, OrderBookSnapshot snapshot, decimal currentPairPrice, CancellationToken cancellationToken)
         {
             foreach (int aggregationLevel in options.Value.AggregationLevels)
             {
                 AggregatedOrderBookEvent aggregatedSnapshot = snapshot.Aggregate(symbol, aggregationLevel, currentPairPrice);
 
-                // snapshot save into storage
+                await aggregatedOrderBookStorage.SaveAggregatedDataAsync(symbol, aggregationLevel, aggregatedSnapshot, cancellationToken);
             }
         }
     }

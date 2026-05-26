@@ -1,10 +1,13 @@
 ﻿using Azure.Data.Tables;
+using Core.Interfaces;
+using Domain;
+using Infrastructure.AggregationSnapshot.Azure;
 using Infrastructure.Common.Configurations;
 using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Common.Azure
 {
-    public class AzureTableClientAdapter
+    public class AzureTableClientAdapter : IAggregatedOrderBookStorage
     {
         private readonly TableServiceClient tableServiceClient;
         private readonly Dictionary<string, TableClient> tables;
@@ -18,36 +21,48 @@ namespace Infrastructure.Common.Azure
             tables = new Dictionary<string, TableClient>();
         }
 
-        //public async Ta
-        //sk<TableClient> GetOrCreateTableAsync(string tableName)
-        //{
-        //    if (_tables.ContainsKey(tableName))
-        //    {
-        //        return _tables[tableName];
-        //    }
+        public async Task SaveAggregatedDataAsync(string symbol, int depth, AggregatedOrderBookEvent aggregatedData, CancellationToken cancellationToken)
+        {
+            var tableClient = await GetOrCreateTableAsync();
 
-        //    var tableClient = _tableServiceClient.GetTableClient(tableName);
-        //    try
-        //    {
-        //        await tableClient.CreateIfNotExistsAsync();
-        //        _tables[tableName] = tableClient;
-        //        Console.WriteLine($"Created table '{tableName}'.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex.Message.Contains("TableAlreadyExists"))
-        //        {
-        //            Console.WriteLine($"Table '{tableName}' already exists, skipping creation.");
-        //            _tables[tableName] = tableClient;
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine($"Error creating table '{tableName}': {ex.Message}");
-        //            throw;
-        //        }
-        //    }
+            AggregatedOrderBookEntity orderBookEntity = new()
+            {
+                PartitionKey = symbol,
+                RowKey = DateTime.UtcNow.ToString("yyyyMMddHHmm") + "_" + depth,
+                Depth = depth,
+                Price = aggregatedData.Price,
+                AskVolume = aggregatedData.AskVolume,
+                BidVolume = aggregatedData.BidVolume
+            };
 
-        //    return tableClient;
-        //}
+            await tableClient.UpsertEntityAsync(orderBookEntity, TableUpdateMode.Replace, cancellationToken);
+        }
+
+        private async Task<TableClient> GetOrCreateTableAsync()
+        {
+            string tableName = "AggregatedOrderBookDepths";
+
+            var tableClient = tableServiceClient.GetTableClient(tableName);
+            try
+            {
+                await tableClient.CreateIfNotExistsAsync();
+                tables[tableName] = tableClient;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("TableAlreadyExists"))
+                {
+                    Console.WriteLine($"Table '{tableName}' already exists, skipping creation.");
+                    tables[tableName] = tableClient;
+                }
+                else
+                {
+                    Console.WriteLine($"Error creating table '{tableName}': {ex.Message}");
+                    throw;
+                }
+            }
+
+            return tableClient;
+        }
     }
 }
