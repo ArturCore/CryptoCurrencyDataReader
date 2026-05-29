@@ -1,7 +1,6 @@
 ﻿using Binance.Net.Objects.Models.Spot;
 using Core.DTO;
 using CryptoExchange.Net.Objects;
-using Infrastructure.SnapshotPublisher.Binance.Interfaces;
 
 namespace Infrastructure.Common.Binance.Mappers
 {

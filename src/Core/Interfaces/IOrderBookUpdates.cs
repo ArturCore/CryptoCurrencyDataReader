@@ -1,7 +1,4 @@
-﻿using Domain;
-using System.Runtime.CompilerServices;
-
-namespace Core.Interfaces
+﻿namespace Core.Interfaces
 {
     public interface IOrderBookUpdates
     {

@@ -1,5 +1,4 @@
-﻿using System;
-using Binance.Net.Clients;
+﻿using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
 using Core.DTO;
 using CryptoExchange.Net.Objects;

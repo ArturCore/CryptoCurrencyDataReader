@@ -1,7 +1,4 @@
-﻿using Core.Interfaces;
-using Domain;
-
-namespace Core.Interfaces
+﻿namespace Core.Interfaces
 {
     public interface IOrderBookBaseSnapshot
     {

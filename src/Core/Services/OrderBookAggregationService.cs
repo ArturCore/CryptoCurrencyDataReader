@@ -3,7 +3,6 @@ using Core.Interfaces;
 using Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Threading;
 
 namespace Core.Services
 {
