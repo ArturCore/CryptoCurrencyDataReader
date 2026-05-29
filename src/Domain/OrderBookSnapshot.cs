@@ -6,7 +6,7 @@
         public IReadOnlyCollection<OrderBookLevel> Bids { get; set; }
         public IReadOnlyCollection<OrderBookLevel> Asks { get; set; }
 
-        public AggregatedOrderBookEvent Aggregate(string symbol, int aggregationLevel, decimal price )
+        public AggregatedOrderBookEvent Aggregate(string symbol, int aggregationLevel, decimal price)
         {
             decimal priceRange = price * (aggregationLevel / 100m);
 
