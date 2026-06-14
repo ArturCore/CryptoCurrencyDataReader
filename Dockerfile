@@ -1,11 +1,20 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
 WORKDIR /app
 COPY . .
 
-WORKDIR /app/src/BinanceWebSocketReader
-RUN dotnet publish -c Release -o /app/publish
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
 
-FROM mcr.microsoft.com/dotnet/runtime:9.0 AS final
+COPY ["src/Inbound/Inbound.csproj", "src/Inbound/"]
+RUN dotnet restore "src/Inbound/Inbound.csproj"
+
+COPY . .
+RUN dotnet publish "src/Inbound/Inbound.csproj" \
+    -c Release \
+    -o /app/publish
+
+FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "BinanceWebSocketReader.dll"]
+
+ENTRYPOINT ["dotnet", "Inbound.dll"]

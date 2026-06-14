@@ -7,6 +7,17 @@ using System.Text.Json;
 
 namespace Core.Services
 {
+    /// <summary>
+    /// Step 4. Backup raw order book data
+    /// For active currency pairs raw order book can contain hundreds of thousands levels of bids and asks
+    /// In case if project restarts, we'll lose all accumulated order book
+    /// In aggregated order book chart this situation will look like falling order book 5x or 10x down
+    /// To fix this inconsistency we should backup local order book to cheap storage
+    /// This data will be used at the start of the project as a base snapshot
+    /// 
+    /// This service designed to create snapshots with raw price-volume pairs from local order book
+    /// and save this snapshot in external storage
+    /// </summary>
     internal class OrderBookBackupService
     (
         IOptions<OrderBookOptions> options,

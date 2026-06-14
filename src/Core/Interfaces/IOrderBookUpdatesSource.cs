@@ -1,5 +1,4 @@
 ﻿using Core.DTO;
-using Domain;
 
 namespace Core.Interfaces
 {

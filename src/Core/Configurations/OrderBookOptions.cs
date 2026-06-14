@@ -1,6 +1,4 @@
-﻿using Domain;
-
-namespace Core.Configurations
+﻿namespace Core.Configurations
 {
     public class OrderBookOptions
     {

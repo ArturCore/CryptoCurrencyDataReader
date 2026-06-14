@@ -1,11 +1,19 @@
 ﻿using Core.Configurations;
 using Core.Interfaces;
-using Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Core.Services
 {
+    /// <summary>
+    /// Step 2. Update order book data via socket connection
+    /// For symbols with small order book (small amount of activity) we can get base snapshot, aggregate it and save
+    /// But symbols with frequent transactions (BTCUSDT, ETHUSDT etc.) Get base order book snapshot (Step 1) can cover max 5000 bids and asks levels
+    /// This is not enough to realistically describe market sentiment and use in trading
+    /// 
+    /// This service connects to currency exchange via sockets
+    /// And updates price-volume levels in local object
+    /// </summary>
     internal class OrderBookUpdatesService(
         ILogger<OrderBookUpdatesService> _logger,
         IOrderBookUpdatesSource orderBookUpdates,
