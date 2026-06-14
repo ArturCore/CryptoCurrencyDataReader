@@ -8,6 +8,12 @@ using Polly.Retry;
 
 namespace Core.Services
 {
+    /// <summary>
+    /// Step 1. Get base order book snapshot.
+    /// There is 2 ways to get raw order book data - connect via sockets (Step 2) and Get base order book snapshot (Step 1)
+    /// This service designed for get first X (for Binance it's 5000) active order book propositions (asks and bids)
+    /// And save this base order book in local object for further updating
+    /// </summary>
     internal class OrderBookBaseSnapshotService(
         IBaseOrderBookSource orderBookSource,
         IOptions<OrderBookOptions> options,

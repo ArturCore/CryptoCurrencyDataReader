@@ -24,6 +24,7 @@ await Host.CreateDefaultBuilder(args)
         services.AddInfrastructure(configuration);
         services.AddCoreServices(configuration);
 
+        // core runtime services
         services.AddHostedService<BaseSnapshotWorker>();
         services.AddHostedService<OrderBookUpdateWorker>();
         services.AddHostedService<BackupOrderBookWorker>();
